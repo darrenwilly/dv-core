@@ -1,0 +1,54 @@
+{
+    "name": "DV",
+    "description": "Darvism Core Business Library",
+    "type": "Core Library",
+    "homepage": "https://bitbucket.org/darrism/dv",
+    "license": "Commercial",
+    "keywords": [
+        "darvism",
+        "solutions",
+        "zend mvc" ,
+        "zend expressive"
+    ],
+    "config": {
+        "sort-packages": true
+    },
+
+    "support": {
+        "issues": "https://support.darvism.com"
+    },
+    "require": {
+        "php": "^7.2",
+        "filp/whoops": "^2.3",
+        "roave/security-advisories": "dev-master",
+        "ramsey/uuid": "^3.8",
+        "zendframework/zend-component-installer": "^2.1.1",
+        "zendframework/zend-config": "^3.2",
+        "zendframework/zend-hydrator": "^2.2",
+        "zendframework/zend-filter": "^2.9",
+        "zendframework/zend-validator": "^2.12",
+        "zendframework/zend-inputfilter": "^2.8.1",
+        "zendframework/zend-paginator": "^2.8.1",
+        "zendframework/zend-problem-details": "^1.0",
+        "zendframework/zend-servicemanager": "^3.3",
+        "zendframework/zend-stdlib": "^3.1",
+        "zendframework/zend-json": "^3.1",
+        "zendframework/zend-view": "^2.11"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^7.0.1",
+        "zendframework/zend-coding-standard": "~1.0.0",
+        "zendframework/zend-expressive-tooling": "^1.0",
+        "zfcampus/zf-development-mode": "^3.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "DV\\": "src/"
+        }
+    },
+    "scripts": {
+        "pre-autoload-dump": [
+            "DV\\Composer\\ModuleAutoloaderInstaller::preAutoloadDump"
+        ]
+    }
+}
