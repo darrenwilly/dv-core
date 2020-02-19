@@ -1,21 +1,21 @@
 <?php
+declare(strict_types=1);
 
 namespace DV\Mvc\Controller ;
 
-use DV\Mvc\Service\ServiceLocatorFactoryTrait;
-use Zend\I18n\Validator\IsFloat;
-use Zend\InputFilter\Input;
-use Zend\Json\Json;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as baseActionController;
-use Veiw\Service\GotoUrl ;
+use Laminas\I18n\Validator\IsFloat;
+use Laminas\InputFilter\Input;
+use Laminas\Json\Json;
 use DV\Service\ActionControl ;
 use DV\Model\BaseTrait;
 use DV\Service\FlashMessenger as flash_messenger ;
 use DV\Service\UserAuth ;
-use Zend\Validator\Callback;
-use Zend\Validator\Digits;
-use Zend\Validator\InArray;
-use Zend\Validator\StringLength;
+use Laminas\Validator\Callback;
+use Laminas\Validator\Digits;
+use Laminas\Validator\InArray;
+use laminas\Validator\StringLength;
+use Twig\Environment;
 
 
 class ActionController extends baseActionController
@@ -28,25 +28,13 @@ class ActionController extends baseActionController
 
     protected $view ;
 
-	public function __construct()
-	{
-		### fetch the MVCEvent instance from thhe application object
-		$event = self::getMvcEvent() ;
-		### set event to use		
-		$this->setEvent($event) ;
-		
-		### load flash message in the url
-		$route_match = $event->getRouteMatch() ;
-		if(null != $route_match->getParam(self::$URI_MESSAGE_KEY , ''))	{
-			self::flash_message_from_uri([self::$URI_MESSAGE_KEY =>
-										$route_match->getParam(self::$URI_MESSAGE_KEY)]) ;
-		}
+	public function __construct($options=[])
+    {
+        if($this->container->has('twig'))    {
+            ##
+            $this->view = $this->container->get('twig') ;
+        }
 
-        $this->view = $this->getViewModel() ;
-        $this->view->setVariables([
-			'page' => $this->params('page' , ActionControl::ONE) ,
-			'onDisplay' => $this->params('onDisplay' , ActionControl::TWENTY) 
-		]) ;
 	}
 	
 	/**
@@ -202,7 +190,7 @@ class ActionController extends baseActionController
 	public function activeTab(array $tabs=['dashboard'])
     {
         $viewModel = $this->view ;
-        $viewModel->setVariable('activeTab' , $tabs) ;
+        $viewModel->activeTab = $tabs ;
         return $viewModel ;
     }
 }
