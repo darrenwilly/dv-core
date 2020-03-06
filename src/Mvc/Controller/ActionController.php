@@ -3,24 +3,23 @@ declare(strict_types=1);
 
 namespace DV\Mvc\Controller ;
 
+use DV\ContainerService\ServiceLocatorFactory;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as baseActionController;
 use Laminas\I18n\Validator\IsFloat;
 use Laminas\InputFilter\Input;
 use Laminas\Json\Json;
-use DV\Service\ActionControl ;
-use DV\Model\BaseTrait;
-use DV\Service\FlashMessenger as flash_messenger ;
-use DV\Service\UserAuth ;
 use Laminas\Validator\Callback;
 use Laminas\Validator\Digits;
-use Laminas\Validator\InArray;
 use laminas\Validator\StringLength;
+use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
-
+use DV\MicroService\TraitModel;
+use DV\MicroService\TraitQuery ;
 
 class ActionController extends baseActionController
 {
-
+    use TraitModel , TraitQuery ;
 	/**
 	 * @var AclQuery
 	 */
@@ -30,12 +29,21 @@ class ActionController extends baseActionController
 
 	public function __construct($options=[])
     {
+        if(null == $this->container)    {
+            $this->container = ServiceLocatorFactory::getInstance();
+        }
+
         if($this->container->has('twig'))    {
             ##
             $this->view = $this->container->get('twig') ;
         }
 
 	}
+
+	public function getUserInfo()
+    {
+        $this->getUser() ;
+    }
 	
 	/**
 	 * @param AclQuery $acl
@@ -192,5 +200,38 @@ class ActionController extends baseActionController
         $viewModel = $this->view ;
         $viewModel->activeTab = $tabs ;
         return $viewModel ;
+    }
+
+    public function getParameters()
+    {
+        if (! $this->container->has('request_stack')) {
+            throw new ServiceNotFoundException('request_stack', null, null, [], 'Request Stack object is required');
+        }
+        ##
+        $requestStack = $this->container->get('request_stack');
+        ##
+        if(! $requestStack instanceof RequestStack)    {
+            ##
+            throw new \RuntimeException('Invalid Request Stack parameter') ;
+        }
+        ##
+        $currentRequest = ($requestStack->getCurrentRequest());
+        ##
+        #if($currentRequest instanceof \Symfony\Component\HttpFoundation\Request )    {}
+        ##
+        $params = [] ;
+        ##
+        $query = $currentRequest->query ;
+        $server = $currentRequest->server ;
+        $request = $currentRequest->request ;
+        #if($query instanceof \Symfony\Component\HttpFoundation\ParameterBag )    {}
+        $params = array_merge($params , $query->all() , $server->all() , $request->all()) ;
+        ##
+        return $params ;
+    }
+
+    public function getLocator($name)
+    {
+        return $this->container->get($name) ;
     }
 }

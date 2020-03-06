@@ -27,22 +27,14 @@ class AuthenticatedActionController extends CAction
 	 */
 	protected function _check_authentication()
 	{
-		$auth_service = self::getLocator('get_auth_service') ;
-			
-		if(! ($auth_service->hasIdentity()))	{
-			### fetch the requesting URI first
-			$url_link = $_SERVER['REQUEST_URI'] ;
-			
-			### ask the browser to delete the cookie
-			#Zend_Session::expireSessionCookie();
-			## unset($_SESSION['Zend_Auth']) ;			
-    		$auth_service->clear();
-			
-			### remove the session file to complete empty the session
-			\DV\Service\System::remove_session_file() ;
-            
-			### append the requested uri to the link			
-			return $this->redirect()->toRoute('login' , [] , ['query' => [ActionControl::REDIRECT_TO => urlencode($url_link)]]);
-		}
+		if(! $this->isGranted('IS_AUTHENTICATED_FULLY'))    {
+		    ##
+            return $this->redirectToRoute('login') ;
+        }
 	}
+
+	protected function acl()
+    {
+        $args = func_get_args() ;
+    }
 }

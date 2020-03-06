@@ -3,6 +3,7 @@
 namespace DV\ContainerService ;
 
 use DV\ContainerService\NullServiceLocatorException;
+use Symfony\Component\HttpKernel\HttpKernel;
 
 
 class ServiceLocatorFactory
@@ -71,14 +72,12 @@ class ServiceLocatorFactory
     {
     	if(null == self::$mvcEvent)	{
     		### fetch the application 
-    		$app = self::getLocator('Application') ;
-    		### fetch the MVC Event
-    		$mvcEvent = $app->getMvcEvent() ;
+            $httpKernelEvent = self::getLocator('kernel') ;
     		### set the MVCEvent
-    		self::setMvcEvent($mvcEvent) ;
+    		self::setMvcEvent($httpKernelEvent) ;
     	}
     	
-    	if(!self::$mvcEvent instanceof MvcEvent)	{
+    	if(!self::$mvcEvent instanceof HttpKernel)	{
     		throw new \Exception('an instance of MVCEvent is required. instance of'. gettype(self::$mvcEvent).' passed') ;
     	}
     	
@@ -91,7 +90,7 @@ class ServiceLocatorFactory
      */
     public static function getRequest()
     {
-    	return self::getMvcEvent()->getRequest() ;
+    	return self::getInstance()->get('request_stack') ;
     }
     
     /**

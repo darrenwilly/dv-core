@@ -1,7 +1,7 @@
 <?php
 namespace DV\Service ;
 
-use DV\Mvc\Service\ServiceLocatorFactory ;
+use DV\ContainerService\ServiceLocatorFactory ;
 
  
 trait GotoUrl
