@@ -2,7 +2,7 @@
 
 namespace DV\Crypt ;
 
-use Zend\Crypt\Password\Bcrypt as zend_bcrypt ;
+use Laminas\Crypt\Password\Bcrypt as Laminas_bcrypt ;
 use DV\Crypt\CryptAbstract as DV_bcrypt_abstract ;
 use DV\Service\ActionControl ;
 use Exception as CException ;
@@ -22,7 +22,7 @@ class Bcrypt
 	
 	public function __construct($_options=array())
 	{
-		$bcrypt =  new zend_bcrypt() ;
+		$bcrypt =  new Laminas_bcrypt() ;
 		
 		if(array_key_exists('salt', $_options))	{
 			$salt = $_options['salt'] ;
@@ -101,7 +101,7 @@ class Bcrypt
 
 	/**
 	 * fetch the string that was hashed in the hash property
-	 * @return zend_bcrypt
+	 * @return Laminas_bcrypt
 	 * @internal param string $_hash
 	 */
 	public function getBCrypt()

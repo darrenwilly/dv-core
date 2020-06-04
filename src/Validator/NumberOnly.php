@@ -2,10 +2,11 @@
 
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator as Laminas_Validate ;
 
 
-class NumberOnly extends Zend_Validate
+class NumberOnly extends Laminas_Validate
 { 
 	protected $_model ;
 	
@@ -19,7 +20,7 @@ class NumberOnly extends Zend_Validate
 
     
     
- 	public function isValid($value)
+ 	public function validate($value , Constraint $constraint)
     {
     	
         $this->_setValue($value);

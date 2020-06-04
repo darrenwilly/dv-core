@@ -1,8 +1,8 @@
 <?php
 namespace DV\Cache\Storage\Adapter\Sqlite;
 
-use Zend\Cache\Exception;
-use Zend\Cache\Storage\IteratorInterface;
+use Laminas\Cache\Exception;
+use Laminas\Cache\Storage\IteratorInterface;
 
 class Sqlite3Iterator implements IteratorInterface
 {

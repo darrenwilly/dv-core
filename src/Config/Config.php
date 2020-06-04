@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace DV\Config;
 
-use Zend\Config\Config as parentClass ;
+use Laminas\Config\Config as parentClass ;
 
 class Config extends parentClass
 {

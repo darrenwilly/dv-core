@@ -1,9 +1,9 @@
 <?php
 namespace DV\Service;
 
-use Zend\Config\Config;
-use Zend\Config\Reader\Json;
-use Zend\Filter\Word\CamelCaseToUnderscore;
+use Laminas\Config\Config;
+use Laminas\Config\Reader\Json;
+use Laminas\Filter\Word\CamelCaseToUnderscore;
 
 trait MagicMethodAwareTrait
 {

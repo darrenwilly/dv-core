@@ -2,11 +2,10 @@
 
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator as Laminas_Validate ;
 
-
-
-class SamePassword extends Zend_Validate
+class SamePassword extends Laminas_Validate
 {
     const NOT_MATCH = 'notMatch';
 
@@ -14,12 +13,9 @@ class SamePassword extends Zend_Validate
         self::NOT_MATCH => 'Passwords do not match'
     );
 
- 
-    
-    public function isValid($value, $context = null)
+    public function validate($value, Constraint $constraint)
     {
-        //$value = (string) $value;
-        $this->_setValue($value);
+        $value = (string) $value;
 
         if (is_array($context)) {
             if (isset($context['NewPwd'])

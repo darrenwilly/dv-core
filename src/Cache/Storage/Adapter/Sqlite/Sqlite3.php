@@ -1,17 +1,17 @@
 <?php
 namespace DV\Cache\Storage\Adapter\Sqlite;
 
-use Zend\Cache\Storage\Adapter\AbstractAdapter ;
+use Laminas\Cache\Storage\Adapter\AbstractAdapter ;
 use stdClass;
 use Traversable;
-use Zend\Cache\Exception;
-use Zend\Cache\Storage\AvailableSpaceCapableInterface;
-use Zend\Cache\Storage\Capabilities;
-use Zend\Cache\Storage\FlushableInterface;
-use Zend\Cache\Storage\IterableInterface;
-use Zend\Cache\Storage\OptimizableInterface;
-use Zend\Cache\Storage\TotalSpaceCapableInterface;
-use Zend\Stdlib\ErrorHandler;
+use Laminas\Cache\Exception;
+use Laminas\Cache\Storage\AvailableSpaceCapableInterface;
+use Laminas\Cache\Storage\Capabilities;
+use Laminas\Cache\Storage\FlushableInterface;
+use Laminas\Cache\Storage\IterableInterface;
+use Laminas\Cache\Storage\OptimizableInterface;
+use Laminas\Cache\Storage\TotalSpaceCapableInterface;
+use Laminas\Stdlib\ErrorHandler;
 
 class Sqlite3 extends AbstractAdapter implements
     AvailableSpaceCapableInterface,
@@ -336,7 +336,7 @@ class Sqlite3 extends AbstractAdapter implements
 	        
 		} catch (Exception $e) {
 			$this->_db->rollBack();
-			#$this->_log("Zend_Cache_Backend_Sqlite3::save() : impossible to store the cache id=$internalKey");
+			#$this->_log("Laminas_Cache_Backend_Sqlite3::save() : impossible to store the cache id=$internalKey");
 			return false;
 		}
         return true;
@@ -528,7 +528,7 @@ class Sqlite3 extends AbstractAdapter implements
      *
      * If we are not connected, the connection is made
      *
-     * @throws Zend_Cache_Exception
+     * @throws Laminas_Cache_Exception
      * @return resource Connection resource
      */
     private function _getConnection()
@@ -671,7 +671,7 @@ class Sqlite3 extends AbstractAdapter implements
     	
     	if (((int) $row['num']) != 1) {
     		## old cache structure
-    		#$this->_log('Zend\Cache\Storage\Adapter\Sqlite::_checkStructureVersion() : old cache structure version detected => the cache is going to be dropped');
+    		#$this->_log('Laminas\Cache\Storage\Adapter\Sqlite::_checkStructureVersion() : old cache structure version detected => the cache is going to be dropped');
     		return false;
     	}
     	
@@ -681,7 +681,7 @@ class Sqlite3 extends AbstractAdapter implements
     /**
      * Check if the database structure is ok (with the good version), if no : build it
      *
-     * @throws \Zend\Cache\Exception\RuntimeException 
+     * @throws \Laminas\Cache\Exception\RuntimeException
      * @return boolean True if ok
      */
     private function _checkAndBuildStructure()

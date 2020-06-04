@@ -1,10 +1,11 @@
 <?php
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator as Laminas_Validate ;
 
 
-class Percentage extends Zend_Validate
+class Percentage extends Laminas_Validate
 {
     const NOT_MATCH = 'notMatch';
 
@@ -14,7 +15,7 @@ class Percentage extends Zend_Validate
 
     
     
-    public function isValid($value, $context = null)
+    public function validate($value, Constraint $constraint)
     {
     	## $value = intval($value) ;
     	

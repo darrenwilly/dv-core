@@ -1,14 +1,14 @@
 <?php
 namespace DV\Cache\Listener;
 
-use Zend\EventManager\AbstractListenerAggregate;
-use Zend\EventManager\EventManagerInterface;
-use Zend\Mvc\MvcEvent;
-use Zend\Router\RouteMatch;
-use Zend\Http\Response;
-use Zend\ServiceManager\ServiceLocatorInterface;
-use Zend\Cache\StorageFactory;
-use Zend\Cache\Storage\StorageInterface;
+use Laminas\EventManager\AbstractListenerAggregate;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\Mvc\MvcEvent;
+use Laminas\Router\RouteMatch;
+use Laminas\Http\Response;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use Laminas\Cache\StorageFactory;
+use Laminas\Cache\Storage\StorageInterface;
 
 class PageCache extends AbstractListenerAggregate
 {
@@ -33,7 +33,7 @@ class PageCache extends AbstractListenerAggregate
         ### fetch the filesytem cache
         $cacheService = $sm->get('DV\Cache\Listener\Cache') ;
         
-        if(! $cacheService instanceof \Zend\Cache\Storage\Adapter\Filesystem)	{
+        if(! $cacheService instanceof \Laminas\Cache\Storage\Adapter\Filesystem)	{
         	throw new \RuntimeException('unable to fetch configured instance of FileSystem for PageCache Listener');
         }
         

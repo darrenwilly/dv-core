@@ -2,7 +2,7 @@
 namespace DV\InputFilter ;
 
 use DV\Service\TraitOptions;
-use Zend\InputFilter\InputFilter ;
+use Laminas\InputFilter\InputFilter ;
 use DV\Doctrine\Doctrine as doctrine_query ;
 
 
@@ -13,7 +13,7 @@ class Base extends InputFilter
 	
 	/**
 	 * Instance of ServiceManager
-	 * @var \Zend\ServiceManager\ServiceManager()
+	 * @var \Laminas\ServiceManager\ServiceManager()
 	 */
 	protected $_sm ;
 	

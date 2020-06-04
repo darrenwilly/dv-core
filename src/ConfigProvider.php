@@ -7,7 +7,7 @@ use DV\Cache\Factory\FilesystemCacheEngineFactory;
 use DV\Expressive\ConfigProviderBootstrapInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\RequestInterface;
-use Zend\EventManager\EventManagerInterface;
+use Laminas\EventManager\EventManagerInterface;
 use DV\EventManager\EventManagerFactory ;
 
 
@@ -76,7 +76,7 @@ class ConfigProvider implements ConfigProviderBootstrapInterface
     }
 
     /**
-     * @return \Zend\Log\Logger
+     * @return \Laminas\Log\Logger
      */
     public static function Log()
     {

@@ -1,7 +1,7 @@
 <?php
 namespace DV\Service;
 
-use Zend\Session ;
+use Laminas\Session ;
 use DV\Session\Session as primary_class;
 
 trait SessionX

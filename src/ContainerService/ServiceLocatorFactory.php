@@ -3,25 +3,32 @@
 namespace DV\ContainerService ;
 
 use DV\ContainerService\NullServiceLocatorException;
+use Laminas\Stdlib\Parameters;
+use Root\Kernel;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernel;
 
 
 class ServiceLocatorFactory
 {
     /**
-     * @var \Zend\ServiceManager\ServiceManager
+     * @var ContainerInterface
      */
     private static $serviceManager = null;
-    
-    /*
-     * @var \Zend\Mvc\MvcEvent
+
+    /**
+     * @var Kernel
      */
     private static $mvcEvent ;
+    private static $request ;
 
     
     /**
      * @throw ServiceLocatorFactory\NullServiceLocatorException
-     * @return \Zend\ServiceManager\ServiceManager
+     * @return ContainerInterface
      */
     public static function getInstance()
     {
@@ -39,8 +46,13 @@ class ServiceLocatorFactory
     {
         self::$serviceManager = $sm;
     }
-        
-    
+
+    /**
+     * @param null $nameOrAlias
+     * @param null $params
+     * @return object|ContainerInterface|null|callable
+     * @throws \Exception
+     */
     public static function getLocator($nameOrAlias = null, $params = null)
     {
     	if(null === self::getInstance()) {
@@ -57,16 +69,20 @@ class ServiceLocatorFactory
 
     	return self::getInstance()->get('Di')->get($nameOrAlias, $params);
     }
-        
-    
+
     public static function setMvcEvent($mvcEvent)
     {
     	self::$mvcEvent = $mvcEvent ;
     }
+    public static function setHttpKernel($kernel)
+    {
+    	self::$mvcEvent = $kernel ;
+    }
+
     /**
      * lazy loading of mvcevent
      * @throws \Exception
-     * @return MvcEvent
+     * @return Kernel
      */
     public static function getMvcEvent()
     {
@@ -86,60 +102,99 @@ class ServiceLocatorFactory
     
     /**
      * lazy load Request
-     * @return \Zend\Stdlib\RequestInterface
+     * @return \Symfony\Component\HttpFoundation\RequestStack
      */
     public static function getRequest()
     {
-    	return self::getInstance()->get('request_stack') ;
+        if(null == self::$request)    {
+            self::$request = self::getInstance()->get('request_stack') ;
+        }
+        return self::$request ;
+    }
+    public static function setRequest($request)
+    {
+    	self::$request = $request ;
     }
     
     /**
      * lazy load Response
-     * @return \Zend\Stdlib\ResponseInterface 
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public static function getResponse()
     {
-    	return self::getMvcEvent()->getResponse() ;
+    	return new Response() ;
     }
     
     /**
      * lazy load Router
-     * @return \Zend\Router\RouteStackInterface
+     * @return  Symfony\Component\Routing\RouterInterface
      */
     public static function getRouter()
     {
-    	return self::getMvcEvent()->getRouter() ;
+    	return self::getInstance()->get('router.default') ;
     }
     
-    /**
-     * Lazy load RouteMatch
-     * @return \Zend\Router\RouteMatch
-     */
-    public static function getRouteMatch()
-    {
-    	return self::getMvcEvent()->getRouteMatch() ;
-    }
 
     /**
      * lazy load Request Parameters
-     * @return \Zend\Stdlib\Parameters
+     * @return array | \Laminas\Stdlib\Parameters
      */
-    public static function getParameters(array $defaults = array())
+    public static function getParameters(array $defaults=[]  , $options=[] , $returnLaminasParameter=false)
     {
-        $request = self::getRequest(); /* @var $request \Zend\Http\PhpEnvironment\Request */
-        if ($request->isGet()) {
-            $parameters = $request->getQuery();
-        } else {
-            $parameters = $request->getPost();
+        /* @var $request \Symfony\Component\HttpFoundation\Request */
+        $requestStack = self::getRequest();
+
+        /**
+         * You have to check for HttpRequest First before checking for Request Stack
+         */
+        if(! $requestStack instanceof Request)    {
+            ##
+            if(! $requestStack instanceof RequestStack)    {
+                ##
+                throw new \RuntimeException('Invalid Request Stack parameter') ;
+            }
+            else{
+                ##
+                $currentRequest = ($requestStack->getCurrentRequest());
+            }
+        }
+        else{
+            $currentRequest = $requestStack ;
         }
 
-        $parameters->fromArray(array_merge($defaults, $parameters->toArray()));
-        return $parameters;
+        ##
+        $params = [] ;
+        ##
+        $query = $currentRequest->query ;
+        $request = $currentRequest->request ;
+
+        #if($query instanceof \Symfony\Component\HttpFoundation\ParameterBag )    {}
+
+        $params = array_merge($params , $query->all() , $request->all() , $defaults) ;
+        ## check if server params should be add
+        if(isset($options['server']))    {
+            $server = $currentRequest->server ;
+            $params = array_merge($params , $server->all())  ;
+        }
+
+        ##
+        if(isset($options['attr']) || isset($options['attribute'])) {
+            $attribute = $currentRequest->attributes ;
+            $params = array_merge($params , $attribute->all()) ;
+        }
+
+        ##
+        if($returnLaminasParameter && class_exists(\Laminas\Stdlib\Parameters::class))    {
+            ##
+            return new Parameters($params) ;
+        }
+        ##
+        return $params ;
     }
 
     /**
      * lazy load Request Parameters
-     * @return \Zend\Stdlib\Parameters
+     * @return string
      */
     public static function assembleUrl($route , $options=[]  , $query_params=[])
     {
@@ -149,12 +204,9 @@ class ServiceLocatorFactory
         if(null != count($query_params))	{
             $route_options['query'] = (array) $query_params ;
         }
+        ##
+        $url = self::getLocator('router.default');
 
-        ### fetch the mvc event
-        $event  = self::getMVCEvent() ;
-        ## assemble a uri
-        $url = self::getRouter()->assemble($options , $route_options);
-
-        return $url ;
+        return $url->generate($route , array_merge($options , $query_params) );
     }
 }

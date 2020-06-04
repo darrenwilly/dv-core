@@ -3,14 +3,14 @@ namespace DV\View\Strategy;
 
 use DV\Http\ResponseHeaders;
 use DV\Mvc\APICallValidator;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\EventManager\ListenerAggregateTrait; 
-use Zend\Http\Response;
-use Zend\Mvc\Console\View\Renderer;
-use Zend\View\Renderer\FeedRenderer;
-use Zend\View\Renderer\JsonRenderer;
-use Zend\View\ViewEvent;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\ListenerAggregateInterface;
+use Laminas\EventManager\ListenerAggregateTrait; 
+use Laminas\Http\Response;
+use Laminas\Mvc\Console\View\Renderer;
+use Laminas\View\Renderer\FeedRenderer;
+use Laminas\View\Renderer\JsonRenderer;
+use Laminas\View\ViewEvent;
 
 class AutoDetectRenderer implements ListenerAggregateInterface
 {
@@ -47,8 +47,8 @@ class AutoDetectRenderer implements ListenerAggregateInterface
     }
 
     /**
-     * @param \Zend\Mvc\MvcEvent $e The MvcEvent instance
-     * @return \Zend\View\Renderer\RendererInterface
+     * @param \Laminas\Mvc\MvcEvent $e The MvcEvent instance
+     * @return \Laminas\View\Renderer\RendererInterface
      */
     public function selectRenderer($e)
     {
@@ -60,7 +60,7 @@ class AutoDetectRenderer implements ListenerAggregateInterface
             return $this->cliRenderer ;
         }
 
-        if($request instanceof \Zend\Console\Request)    {
+        if($request instanceof \Laminas\Console\Request)    {
             return $this->cliRenderer ;
         }
 
@@ -95,7 +95,7 @@ class AutoDetectRenderer implements ListenerAggregateInterface
     }
 
     /**
-    * @param \Zend\Mvc\MvcEvent $e The MvcEvent instance
+    * @param \Laminas\Mvc\MvcEvent $e The MvcEvent instance
     * @return void
     */
     public function injectResponse($e)
@@ -105,7 +105,7 @@ class AutoDetectRenderer implements ListenerAggregateInterface
          $result = $e->getResult();
          $request = $e->getRequest() ;
         
-        if($request instanceof \Zend\Console\Request)    {
+        if($request instanceof \Laminas\Console\Request)    {
             #$response->setContent($result);
             return ;
         }

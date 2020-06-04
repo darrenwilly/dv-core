@@ -16,8 +16,8 @@ if(! defined('TROJAN_ACL_CONTROLLER_ACTION'))    {
 $config = [
 	'controllers' => [
 		'invokables' => [
-			'DV\Mvc\Controller\ActionController' => 'DV\Mvc\Controller\ActionController' ,
-			'DV\Mvc\Controller\AuthenticatedActionController' => 'DV\Mvc\Controller\AuthenticatedActionController' , 
+			\DV\Mvc\Controller\ActionController::class => \DV\Mvc\Controller\ActionController::class,
+			\DV\Mvc\Controller\AuthenticatedActionController::class => DV\Mvc\Controller\AuthenticatedActionController::class ,
 		],
 	],
 		

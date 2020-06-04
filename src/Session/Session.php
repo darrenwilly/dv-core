@@ -2,21 +2,21 @@
 
 namespace DV\Session ;
 
-use Zend\Session\SessionManager as SNManager ;
-use Zend\Session\Container ;
+use Laminas\Session\SessionManager as SNManager ;
+use Laminas\Session\Container ;
 
 
 class Session 
 {
 	/**
-	 * @var \Zend\Session\SessionManager
+	 * @var \Laminas\Session\SessionManager
 	 */
 	protected $_sessionManager;
 	
 	protected $_items;
 	
 	/** 
-	 * @var \Zend\Session\Container
+	 * @var \Laminas\Session\Container
 	 */
 	protected $_container ;
 	
@@ -117,7 +117,7 @@ class Session
 	/**
 	 * Fetch the Instantiated Session Manager
 	 * 
-	 * @return \Zend\Session\SessionManager
+	 * @return \Laminas\Session\SessionManager
 	 */
 	public function getSessionManager()
 	{		
@@ -128,7 +128,7 @@ class Session
 	/**
 	 * Set the container manager
 	 * 
-	 * @return \Zend\Session\Container::setDefaultManager()
+	 * @return \Laminas\Session\Container::setDefaultManager()
 	 */
 	public function setDefaultContainerManager()
 	{
@@ -139,7 +139,7 @@ class Session
 	 * implement a means of centralizing session container.
 	 * 
 	 * @param string $namespace
-	 * @return \Zend\Session\Container
+	 * @return \Laminas\Session\Container
 	 */
 	public function getContainer($namespace=null)
 	{	
@@ -217,7 +217,7 @@ class Session
 	/**
 	 * Fetch the session storage 
 	 * 
-	 * @return \Zend\Session\ManagerInterface::getStorage()
+	 * @return \Laminas\Session\ManagerInterface::getStorage()
 	 */
 	public function getStorage() 
 	{

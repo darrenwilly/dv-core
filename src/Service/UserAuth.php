@@ -1,65 +1,102 @@
 <?php
 namespace DV\Service;
 
-use DV\Mvc\Service\ServiceLocatorFactory ;
 
 trait UserAuth
 {
     protected static $AUTH_SERVICE_NAME = 'getAuthService' ;
+
     /**
-     * Return some User information that is provided as Key.
+     * Get user info from the auth session
      *
-     * @params string key to the parament.
-     * @param null $key
-     * @return \
+     * @param null $options
+     * @return string
+     * @internal param null|string $info The data to fetch, null to chain
      */
-    public function getUserInfo($key=null)
+    public function getUserInfo($options=[])
     {
-        $auth_service = ServiceLocatorFactory::getLocator(self::$AUTH_SERVICE_NAME) ;
-        if(null == $key)	{
-            return $auth_service->hasIdentity() ;
+        ## check for value in options
+        if (null == $options || (is_array($options) && null == count($options)) ) {
+            return $this->hasLoggedIn();
         }
 
-        if(is_string($key))	{
+        ### before loading the information form identity, verify the user has signed in
+        if (false === $this->has_logged_in()) {
+            return false ;
+        }
+
+        ##
+        $auth_service = $this->security;
+        ##
+        $user_entity_row = $auth_service->getUser() ;
+
+        if(is_array($options))	{
+            ##
+            $info = null ;
+            ##
+            foreach ($options as $option)		{
+                ##
+                $underScoreToCamelCase = new \Laminas\Filter\Word\UnderscoreToCamelCase() ;
+                ##
+                $user_options = sprintf('get%s'  , ucfirst($underScoreToCamelCase->filter($option))) ;
+                ##
+                $info[] = $user_entity_row->{$user_options}() ;
+            }
+            ##
+            return $info ;
+        }
+
+        if(is_string($options))	{
             ### check if the key is "getIdentity"
-            if('getIdentity' == $key)	{
-                return $auth_service->getIdentity() ;
+            if('getIdentity' == $options)	{
+                return $user_entity_row->getIdentity() ;
             }
 
-            if('clearIdentity' == $key)	{
-                return $auth_service->clear() ;
+            if('getEntity' == $options || 'entity' == $options)	{
+                return $user_entity_row ;
             }
             ### initiate the underscore to camelcase filter
-            $underScoreToCamelCase = new \Zend\Filter\Word\UnderscoreToCamelCase() ;
-            ### filter the identity
-            $getEntityMethod = 'get'.ucfirst($underScoreToCamelCase->filter($key)) ;
-            $identity = $auth_service->getIdentity() ;
-
-            ## when entity object is stored
-            if(method_exists($identity , $getEntityMethod))    {
-                ### return the property of User table
-                return $identity->{$getEntityMethod}() ;
-            }
-            elseif(property_exists($identity , $key))   {
-                ##
-                $identityReflection = new \ReflectionObject($identity) ;
-                return $identityReflection->getProperty($key) ;
-            }
+            $underScoreToCamelCase = new \Laminas\Filter\Word\UnderscoreToCamelCase() ;
+            ##
+            $user_options = sprintf('get%s'  , ucfirst($underScoreToCamelCase->filter($options))) ;
+            $options = 'get'.ucfirst($underScoreToCamelCase->filter($options)) ;
+            ##
+            return $user_entity_row->{$options}();
         }
 
-        throw new \UnexpectedValueException('We cannot ascertain / fetch any required object matching your desire') ;
+        ### load the identity object only when Identity has been registered
+        if(! $this->has_logged_in())	{
+            return false ;
+        }
+        ##
+        return $user_entity_row->{$options}();
     }
 
-    public function clearIdentity()
+
+    /**
+     * Check if we are logged in
+     *
+     * @return boolean
+     */
+    public function has_logged_in()
     {
-        $auth_service = ServiceLocatorFactory::getLocator(self::$AUTH_SERVICE_NAME);
-        return $auth_service->clear() ;
+        return $this->hasLoggedIn();
     }
-
-    public static function staticGetUserInfo($key=null)
+    public function hasLoggedIn()
     {
-        $self = new self() ;
+        ##
+        $auth_service = $this->security;
+        ##
+        $user_entity_row = $auth_service->getUser() ;
+        ##
+        if(empty($user_entity_row))     {
+            ##
+            return false ;
+        }
 
-        return $self->getUserInfo($key) ;
+        ##
+        $acl = $this->security->isGranted('IS_AUTHENTICATED_FULLY');
+        ##
+        return $acl ;
     }
 }

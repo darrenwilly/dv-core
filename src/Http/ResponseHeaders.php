@@ -4,9 +4,9 @@ namespace DV\Http;
 use Carbon\Carbon;
 use DV\Mvc\Service\ServiceLocatorFactory;
 use DV\Http\AppLogicKeys as requiredXHeaders;
-use Zend\Http\Response;
-use Zend\Json\Json;
-use Zend\Mvc\MvcEvent;
+use Laminas\Http\Response;
+use Laminas\Json\Json;
+use Laminas\Mvc\MvcEvent;
 
 trait ResponseHeaders
 {

@@ -3,9 +3,11 @@ declare(strict_types=1) ;
 
 namespace DV\Model ;
 
+use Veiw\Core\Query\System;
+
 abstract class BaseAbstract extends DoctrineBaseAbstract
 {
- 	const DOCTRINE_ORM_EM = 'Doctrine\ORM\EntityManager' ;
+ 	const DOCTRINE_ORM_EM = 'Doctrine\ORM\EntityManagerInterface' ;
 	
 	const YES = 'Y' ;
 
@@ -16,7 +18,7 @@ abstract class BaseAbstract extends DoctrineBaseAbstract
 
 	public function getSystem()
 	{
-        $sys_model = new \DV\Model\System() ;
+        $sys_model = $this->container->get(System::class) ;
 		return $sys_model ;
 	}
 

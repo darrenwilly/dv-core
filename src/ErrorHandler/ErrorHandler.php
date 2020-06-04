@@ -2,12 +2,12 @@
 namespace DV\ErrorHandler;
 
 use DV\Mvc\APICallValidator;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\EventManager\ListenerAggregateTrait;
-use Zend\Mvc\MvcEvent;
-use Zend\View\Renderer\JsonRenderer;
-use Zend\View\ViewEvent;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\ListenerAggregateInterface;
+use Laminas\EventManager\ListenerAggregateTrait;
+use Laminas\Mvc\MvcEvent;
+use Laminas\View\Renderer\JsonRenderer;
+use Laminas\View\ViewEvent;
 use DV\ErrorHandler\Json\{DispatchResponse , RenderResponse };
 
 class ErrorHandler implements ListenerAggregateInterface
@@ -28,9 +28,9 @@ class ErrorHandler implements ListenerAggregateInterface
                 return new JsonRenderer() ;
             }, 100);
             ##
-            $this->listeners[] = $sharedEventManager->attach(\Zend\Mvc\Application::class , MvcEvent::EVENT_DISPATCH_ERROR , [DispatchResponse::class, 'attachDispatchErrorHandler'] ) ;
+            $this->listeners[] = $sharedEventManager->attach(\Laminas\Mvc\Application::class , MvcEvent::EVENT_DISPATCH_ERROR , [DispatchResponse::class, 'attachDispatchErrorHandler'] ) ;
             ##
-            $this->listeners[] = $sharedEventManager->attach(\Zend\Mvc\Application::class , MvcEvent::EVENT_RENDER_ERROR , [RenderResponse::class , 'attachRenderErrorHandler']) ;
+            $this->listeners[] = $sharedEventManager->attach(\Laminas\Mvc\Application::class , MvcEvent::EVENT_RENDER_ERROR , [RenderResponse::class , 'attachRenderErrorHandler']) ;
         }
 
     }

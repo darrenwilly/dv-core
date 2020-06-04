@@ -10,13 +10,13 @@ class FilesystemCacheEngineFactory
 
     public function __invoke(ContainerInterface $container)
     {
-        $cache = new \Zend\Cache\Storage\Adapter\Filesystem() ;
+        $cache = new \Laminas\Cache\Storage\Adapter\Filesystem() ;
 
-        $serialize_plugin = new \Zend\Cache\Storage\Plugin\Serializer();
+        $serialize_plugin = new \Laminas\Cache\Storage\Plugin\Serializer();
         ### add the plugin
         $cache->addPlugin($serialize_plugin);
 
-        $exception_plugin = new \Zend\Cache\Storage\Plugin\ExceptionHandler() ;
+        $exception_plugin = new \Laminas\Cache\Storage\Plugin\ExceptionHandler() ;
         $exception_plugin->getOptions()->setThrowExceptions(true) ;
         ## add the exception plugin
         $cache->addPlugin($exception_plugin) ;

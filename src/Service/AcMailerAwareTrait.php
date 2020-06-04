@@ -28,7 +28,7 @@ trait AcMailerAwareTrait
     }
 
     /**
-     * @return MailService|\Zend\ServiceManager\ServiceManager
+     * @return MailService|\Laminas\ServiceManager\ServiceManager
      * @throws \Exception
      */
     protected function getEngine($service='acmailer.mailservice.default')
@@ -37,7 +37,7 @@ trait AcMailerAwareTrait
     }
 
     /*
-     * @return \ZendTwig\Renderer\TwigRenderer
+     * @return \LaminasTwig\Renderer\TwigRenderer
      */
     public function getTemplateRenderer()
     {

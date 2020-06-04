@@ -1,11 +1,11 @@
 <?php
 namespace DV\Crypt\Data ;
 
-use Zend\Crypt\Key\Derivation\Pbkdf2 ;
+use Laminas\Crypt\Key\Derivation\Pbkdf2 ;
 use DV\Crypt\CryptAbstract ;
-use Zend\Crypt\BlockCipher;
-use Zend\Crypt\PublicKey\RsaOptions;
-use Zend\Crypt\PublicKey\Rsa;
+use Laminas\Crypt\BlockCipher;
+use Laminas\Crypt\PublicKey\RsaOptions;
+use Laminas\Crypt\PublicKey\Rsa;
 
 class Encryption
 {
@@ -105,7 +105,7 @@ class Encryption
 	/**
 	 * initiate the block cipher engine
 	 * @param array $_options
-	 * @return \Zend\Crypt\BlockCipher
+	 * @return \Laminas\Crypt\BlockCipher
 	 */
 	public function block_cipher(array $_options)
 	{
@@ -161,7 +161,7 @@ class Encryption
 	 * 
 	 * @param array $_options
 	 * @throws \Exception
-	 * @return \Zend\Crypt\PublicKey\RsaOptions
+	 * @return \Laminas\Crypt\PublicKey\RsaOptions
 	 */
 	public function rsa_generate_cert($_options)
 	{	
@@ -179,7 +179,7 @@ class Encryption
 			/**
 			 * config key must be set inorder to openSSL to work on PHP Engine
 			 */
-			$rsa_key_options['rsa_key_options'] = [ 'config' => 'C:\Zend\Apache2\conf\openssl.cnf', 
+			$rsa_key_options['rsa_key_options'] = [ 'config' => 'C:\Laminas\Apache2\conf\openssl.cnf',
 													'private_key_bits' => 2048,
 									                'private_key_type' => OPENSSL_KEYTYPE_RSA, 
 									                'digest_alg'       => 'sha512',													
@@ -221,7 +221,7 @@ class Encryption
 	 * 
 	 * @param array $_options
 	 * @throws \Exception
-	 * @return \Zend\Crypt\PublicKey\Rsa
+	 * @return \Laminas\Crypt\PublicKey\Rsa
 	 */
 	public function rsa_operation($_options)
 	{

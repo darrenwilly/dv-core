@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace DV\Mvc\Controller ;
 
 use DV\ContainerService\ServiceLocatorFactory;
+use Shared\Core\Security\Acl\Veiw;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController as baseActionController;
 use Laminas\I18n\Validator\IsFloat;
 use Laminas\InputFilter\Input;
@@ -12,10 +13,12 @@ use Laminas\Validator\Callback;
 use Laminas\Validator\Digits;
 use laminas\Validator\StringLength;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Twig\Environment;
 use DV\MicroService\TraitModel;
 use DV\MicroService\TraitQuery ;
+use Shared\Core\Security\Auth\Authentication;
+use Veiw\Core\Service\FlashMessenger;
+use Veiw\Core\Service\Vurl;
+use Veiw\Infrastructure\View\ViewModel;
 
 class ActionController extends baseActionController
 {
@@ -23,7 +26,7 @@ class ActionController extends baseActionController
 	/**
 	 * @var AclQuery
 	 */
-	private $_acl;
+	private $acl;
 
     protected $view ;
 
@@ -38,21 +41,18 @@ class ActionController extends baseActionController
             $this->view = $this->container->get('twig') ;
         }
 
+        if(null == $this->acl)    {
+            $this->acl = ServiceLocatorFactory::getLocator(Veiw::class) ;
+        }
 	}
 
-	public function getUserInfo()
-    {
-        $this->getUser() ;
-    }
-	
 	/**
 	 * @param AclQuery $acl
-	 * @return \DV\Mvc\Controller\ActionController
+	 * @return bool
 	 */
-	public function setAcl($acl) 
+	public function acl($resourceOrRoleAsAttribute , $privilegeOrResourceOrRoleAsSubject=false)
 	{
-		$this->_acl = $acl;
-		return $this;
+		return $this->acl->isAllowed($resourceOrRoleAsAttribute , $privilegeOrResourceOrRoleAsSubject);
 	}
 	
 	/**
@@ -62,7 +62,7 @@ class ActionController extends baseActionController
 	 */
 	protected function isAclAllowed($resource = null, $priv = null)
     {
-		return $this->acl->isAllowed($resource, $priv);
+		return $this->acl($resource, $priv);
 	}
 
 
@@ -195,43 +195,137 @@ class ActionController extends baseActionController
         return true;
     }
 
-	public function activeTab(array $tabs=['dashboard'])
+	public function activeTab(array $tabs=['dashboard'] , $existingModel=null)
     {
-        $viewModel = $this->view ;
-        $viewModel->activeTab = $tabs ;
+        if(null == $existingModel)    {
+            $viewModel = new ViewModel() ;
+        }else{
+            $viewModel = $existingModel ;
+        }
+        $viewModel->setVariable('activeTab'  , $tabs) ;
         return $viewModel ;
     }
 
-    public function getParameters()
+    public function getParameters(array $defaults = array() , $returnLaminasParameter=false , $optionsToReturn=[])
     {
-        if (! $this->container->has('request_stack')) {
-            throw new ServiceNotFoundException('request_stack', null, null, [], 'Request Stack object is required');
-        }
         ##
-        $requestStack = $this->container->get('request_stack');
-        ##
-        if(! $requestStack instanceof RequestStack)    {
-            ##
-            throw new \RuntimeException('Invalid Request Stack parameter') ;
-        }
-        ##
-        $currentRequest = ($requestStack->getCurrentRequest());
-        ##
-        #if($currentRequest instanceof \Symfony\Component\HttpFoundation\Request )    {}
-        ##
-        $params = [] ;
-        ##
-        $query = $currentRequest->query ;
-        $server = $currentRequest->server ;
-        $request = $currentRequest->request ;
-        #if($query instanceof \Symfony\Component\HttpFoundation\ParameterBag )    {}
-        $params = array_merge($params , $query->all() , $server->all() , $request->all()) ;
-        ##
-        return $params ;
+        return ServiceLocatorFactory::getParameters($defaults , $optionsToReturn , $returnLaminasParameter) ;
     }
 
+    /**
+     * @param $name
+     * @return object|callable|null
+     * @throws \Exception
+     */
     public function getLocator($name)
     {
-        return $this->container->get($name) ;
+        try{
+            ##
+            $service = $this->container->get($name) ;
+        }
+        catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $exception )   {
+            ##
+            $service = ServiceLocatorFactory::getLocator($name) ;
+        }
+        return $service ;
     }
+
+    /**
+     * Proxy to Verify Authentications
+     * @param array $options
+     * @return mixed
+     */
+    public function getUserInfo($options=[])
+    {
+        ##
+        if( (! method_exists($this , 'getContainer')) && (! property_exists( $this ,'container')) )    {
+            ##
+            throw new \RuntimeException('Container Service object is required to perform the next logic') ;
+        }
+        try{
+            ##
+            $security_checker = $this->getLocator(Authentication::class) ;
+
+        }
+        catch (\Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException $exception )   {
+            ##
+            $security_checker = ServiceLocatorFactory::getLocator(Authentication::class) ;
+        }
+        catch (\Throwable $exception)   {
+            ##
+            $security_checker = ServiceLocatorFactory::getLocator(Authentication::class) ;
+        }
+        ##
+        return $security_checker->getUserInfo($options) ;
+    }
+
+    public function addFlashMessage($message)
+    {
+        ##
+        $messanger = $this->getLocator(FlashMessenger::class) ;
+        ##
+        if(is_numeric($message))    {
+            return $messanger->message($message) ;
+        }
+        ##
+        return $messanger->addFlashMessage($message) ;
+    }
+
+    public function _goto($options)
+    {
+        if(is_string($options))    {
+            $options = ['route' => $options , 'params' => [] ] ;
+        }
+
+        if(! isset($options['route']))    {
+            ##
+            if(isset($options['label']))    {
+                ##
+                $options['route'] = $options['label'] ;
+                unset($options['label']) ;
+            }else{
+                $options['route'] = 'general-default' ;
+            }
+            ##
+            $options['params'] = $options ;
+        }
+        /**
+         * when an error occured might mean the router does not exist, then use vurl to generate the link
+         */
+        try{
+            ##
+            return $this->redirectToRoute($options['route'] , $options['params']) ;
+        }
+        catch (\Throwable $exception)   {
+            ##
+            $vurl = $this->getLocator(Vurl::class) ;
+            ##
+            if(isset($options['route']))    {
+                ## change the key to link
+                $options['link'] = $options['route'] ;
+                ## unset route
+                unset($options['route']);
+            }
+            ##
+            return $this->redirect($vurl($options)) ;
+        }
+    }
+
+    /**
+     * Proxy for actions in Controller that has no route defined
+     * @param $name
+     * @param $arguments
+
+    public function __call($name, $arguments)
+    {
+        ##
+        $current_object = get_class($this) ;
+        ## when the method exist in the controller, redirect to it
+        if(method_exists($current_object , $name))    {
+            ##
+            return call_user_func_array([$current_object , $name] , $arguments) ;
+        }
+        ## when that method don't exist
+        throw new \RuntimeException('Invalid Controller Actions called, Please check the route configuration') ;
+    }*/
 }

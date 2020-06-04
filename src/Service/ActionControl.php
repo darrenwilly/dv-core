@@ -59,7 +59,11 @@ class ActionControl
     const COMPLETED = 'completed';
     const AUTO = 'auto' ;
     const USER = 'user' ;
-     
+
+    const ACCEPTANCE = 'acceptance' ;
+    const RELEASE = 'release' ;
+    const DISPATCH = 'dispatch' ;
+    const STORE = 'store' ;
  
    	const NIGERIA_COUNTRY_ID = 151 ; 
     

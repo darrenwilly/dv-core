@@ -1,9 +1,9 @@
 <?php
 namespace DV\Cache\Storage\Plugin ;
 
-use Zend\Cache\Storage\Plugin;
-use Zend\Cache\Storage\Event;
-use Zend\Cache\Storage\PostEvent;
+use Laminas\Cache\Storage\Plugin;
+use Laminas\Cache\Storage\Event;
+use Laminas\Cache\Storage\PostEvent;
 use DV\Crypt\Filter\Decrypt as data_decryptor ;
 use DV\Crypt\Filter\Encrypt as data_encryptor ;
 

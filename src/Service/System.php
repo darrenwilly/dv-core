@@ -1,7 +1,7 @@
 <?php
 namespace DV\Service ;
 
-use Zend\Stdlib\ErrorHandler ;
+use Laminas\Stdlib\ErrorHandler ;
 
 class System
 {
@@ -17,7 +17,7 @@ class System
 	
 	const RESOURCE = 'resource' ;
 	
-	const ZF2_ACL_PATH = '/Application/src/%s/Acl/%s' ;
+	const ZF2_ACL_PATH = '/core-source/src/%s/Acl/%s' ;
 	
 	
 	static public function remove_session_file($session_id=null)

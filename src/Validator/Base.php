@@ -2,9 +2,10 @@
 namespace DV\Validator;
 
 use DV\MicroService\TraitContainer;
-use Zend\Validator\AbstractValidator as zend_validate ;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Validator\ConstraintValidator as Laminas_validate ;
 
-abstract class Base extends zend_validate
+abstract class Base extends Laminas_validate
 {
     use TraitContainer ;
 

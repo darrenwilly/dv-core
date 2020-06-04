@@ -3,38 +3,18 @@
 namespace DV\Mvc\Controller ;
 
 use DV\Mvc\Controller\ActionController as CAction ;
-use DV\Service\ActionControl ;
-
 
 class AuthenticatedActionController extends CAction
 {
-    #protected $eventIdentifier = 'DV\Mvc\Controller\AuthenticatedActionController' ;
-
-	public function __construct()
-	{
-		parent::__construct() ;
-		
- 		## call the redirector mehtod.
-		$this->_check_authentication() ;
-	}
-
-
 	/**
-	 * Check if the User has been authenticated.
+	 * This logic here has been moved into an Event Subscriber to make it effective
 	 *
 	 * @throws \Exception
 	 * @internal param array $redirector
 	 */
 	protected function _check_authentication()
 	{
-		if(! $this->isGranted('IS_AUTHENTICATED_FULLY'))    {
-		    ##
-            return $this->redirectToRoute('login') ;
-        }
+		throw new \RuntimeException('Logic has been transffered into an EventSubscriber instead');
 	}
 
-	protected function acl()
-    {
-        $args = func_get_args() ;
-    }
 }

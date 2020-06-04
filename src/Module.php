@@ -5,10 +5,10 @@ use DV\Authentication\Api\Listener\{HeaderAuthentication , HeaderRequirement} ;
 use DV\ErrorHandler\ErrorHandler;
 use DV\Router\Listener\ApachePatch;
 use DV\View\Strategy\AutoDetectRenderer;
-use Zend\EventManager\EventInterface;
+use Laminas\EventManager\EventInterface;
 use DV\Cache\Engine ;
 
-use Zend\ServiceManager\ServiceManager;
+use Laminas\ServiceManager\ServiceManager;
 
 
 class Module
@@ -37,7 +37,7 @@ class Module
 		$moduleRouteListener = new ModuleRouteListener();
 		$moduleRouteListener->attach($eventManager);
 
-        /** when a zend app is hosted in the folder structure like my own that allow multiple application of different platform
+        /** when a Laminas app is hosted in the folder structure like my own that allow multiple application of different platform
          * to sit inside one folder, I have a problem with apache which I cannot solve for now, it simply prepend the name of the
          * project master folder "backend" to the url. Later i will look for how to solve  the prepended folder name, but for now
          * The Class ApachePatch will correct the problem
@@ -53,7 +53,7 @@ class Module
 
         $this->registerDoctrineUnknownDatatype($serviceManager) ;
 
-		$view = new \DV\Engine\VolumeLicensing\DV() ;
+		$view = new \DV\VolumeLicense\DV() ;
 		$view->attach($eventManager) ;
 
         ## attach api listener only when an API call is detected since most of the logic within are for API call
@@ -108,7 +108,7 @@ class Module
     
     /*
      * (non-PHPdoc)
-     * @see \Zend\ModuleManager\Feature\ServiceProviderInterface::getServiceConfig()
+     * @see \Laminas\ModuleManager\Feature\ServiceProviderInterface::getServiceConfig()
      */
     public function getServiceConfig()
     {
@@ -136,13 +136,13 @@ class Module
     				###
     				'Filesystem\Cache\Engine' => function ($sm) {
     					### fetch the Filesystem cache
-    					$_cache = new \Zend\Cache\Storage\Adapter\Filesystem() ;
+    					$_cache = new \Laminas\Cache\Storage\Adapter\Filesystem() ;
     					
-    					$serialize_plugin = new \Zend\Cache\Storage\Plugin\Serializer();
+    					$serialize_plugin = new \Laminas\Cache\Storage\Plugin\Serializer();
     					### add the plugin
     					$_cache->addPlugin($serialize_plugin);
     						
-    					$exception_plugin = new \Zend\Cache\Storage\Plugin\ExceptionHandler() ;
+    					$exception_plugin = new \Laminas\Cache\Storage\Plugin\ExceptionHandler() ;
     					$exception_plugin->getOptions()->setThrowExceptions(true) ;
     					### add the exception plugin
     					$_cache->addPlugin($exception_plugin) ;
@@ -229,7 +229,7 @@ class Module
     }
 
     /**
-     * @return \Zend\Log\Logger
+     * @return \Laminas\Log\Logger
      */
     public static function Log()
     {
@@ -245,7 +245,7 @@ class Module
             $streamWriter = new \DV\Log\Writer\Stream(['logFileMode' => 'json']) ;
             ##
             #$streamWriter = $streamWriter->getWriter() ;
-            #$streamWriter->setFormatter(new \Zend\Log\Formatter\Json()) ;
+            #$streamWriter->setFormatter(new \Laminas\Log\Formatter\Json()) ;
             #$streamWriterItself->setFormatter($streamWriter->getSimpleFormatter()) ;
             ##
             return $streamWriter ;
