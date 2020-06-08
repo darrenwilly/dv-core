@@ -30,9 +30,9 @@ return function(ContainerConfigurator $configurator)   {
 
         /**
          * LOAD Validator
-         */
+
         $services->load('DV\\Validator\\' , dirname(__DIR__).'/src/Validator/*')
-                            ->tag('validator.constraint_validator') ;
+                            ->tag('validator.constraint_validator') ; */
 
     }
     catch (\Throwable $exception)   {
