@@ -1,9 +1,9 @@
 <?php
 namespace DV\Cache\Listener ;
 
-use Zend\EventManager\AbstractListenerAggregate ;
-use Zend\EventManager\EventManagerInterface ;
-use Zend\Mvc\MvcEvent ;
+use Laminas\EventManager\AbstractListenerAggregate ;
+use Laminas\EventManager\EventManagerInterface ;
+use Laminas\Mvc\MvcEvent ;
 use DV\Mvc\Service\ServiceLocatorFactory ;
 
 class CacheListener extends AbstractListenerAggregate
@@ -18,7 +18,7 @@ class CacheListener extends AbstractListenerAggregate
 	
 	public function __construct($cacheService=null)
 	{
-		if(null == $cacheService || (! $cacheService instanceof \Zend\Cache\Storage\Adapter\Filesystem))	{
+		if(null == $cacheService || (! $cacheService instanceof \Laminas\Cache\Storage\Adapter\Filesystem))	{
 			$cacheService = ServiceLocatorFactory::getLocator('DV\Cache\Listener\Cache') ;
 		}	
 		$this->cacheService = $cacheService ;

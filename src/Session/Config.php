@@ -3,8 +3,8 @@
 namespace DV\Session ;
 
 use DV\Mvc\Service\ServiceLocatorFactory ;
-use Zend\Session\Config\StandardConfig;
-use Zend\Session\Storage ;
+use Laminas\Session\Config\StandardConfig;
+use Laminas\Session\Storage ;
 
 
 class Config 
@@ -59,7 +59,7 @@ class Config
         ### set the options for the config class
         $session_config_class->setOptions($_options) ;
 
-        ### set the instance of Zend_Config class as the Session config object to be used in SessionManager
+        ### set the instance of Laminas_Config class as the Session config object to be used in SessionManager
         $this->setConfig($session_config_class) ;
 
         /**
@@ -102,8 +102,8 @@ class Config
 	}	
 		
 	/**
-	 * fetch the zend session configuration storage
-	 * @return \Zend\Session\Storage
+	 * fetch the Laminas session configuration storage
+	 * @return \Laminas\Session\Storage
 	 */	
 	public function getStorage()
 	{

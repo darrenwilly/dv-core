@@ -1,21 +1,26 @@
 <?php
 namespace DV\View ;
 
-use Zend\View\Helper\AbstractHelper as master_helper_abstract ;
-use DV\Mvc\Service\ServiceLocatorFactory ;
+use DV\ContainerService\ServiceLocatorFactory ;
+use Psr\Container\ContainerInterface;
+use Veiw\Infrastructure\Twig\TrojanViewHelperAbstract;
 
-
-class Base extends master_helper_abstract
+class Base extends TrojanViewHelperAbstract
 {
 	/**
 	 * 
-	 * @var \Zend\ServiceManager\ServiceManager
+	 * @var ContainerInterface
 	 */
 	protected $_sm ;
 	
 	
-	public function __construct()
+	public function __construct(ContainerInterface $container)
 	{
+
+		if(null == $this->_sm)	{
+			$this->_sm = $container ;
+		}
+		## check again
 		if(null == $this->_sm)	{
 			$this->_sm = ServiceLocatorFactory::getInstance() ;
 		}

@@ -3,9 +3,9 @@ namespace DV\ErrorHandler\Json;
 
 use DV\Http\ResponseHeaders;
 use DV\Service\UniqueGen;
-use Zend\Mvc\MvcEvent;
-use Zend\View\Model\JsonModel;
-use Zend\View\Renderer\JsonRenderer;
+use Laminas\Mvc\MvcEvent;
+use Laminas\View\Model\JsonModel;
+use Laminas\View\Renderer\JsonRenderer;
 
 class RenderResponse
 {

@@ -1,8 +1,6 @@
 <?php
 namespace DV\Service ;
 
-
-
 class FileWriter
 {
 	
@@ -79,7 +77,7 @@ class FileWriter
 	
 	
 	/**
-	 * create a ACL Role class string that implement the Zend_Role_Interface
+	 * create a ACL Role class string that implement the Laminas_Role_Interface
 	 * 
 	 * @param string $acl_role the role to create its file
 	 * @param string $moduleFolder the module to create the file in
@@ -87,11 +85,9 @@ class FileWriter
 	protected static function _writeAclRoleClassString($acl_role , $moduleFolder=self::DEFAULT_MODULE)
 	{
 		$string = '<?php
-namespace '.ucfirst($moduleFolder).'\Acl\Role ;	
-
-use Zend\Permissions\Acl\Role\RoleInterface ;
+namespace '.ucfirst($moduleFolder).'\Core\Acl\Role ;	 
 					
-class '.ucfirst($acl_role).' implements RoleInterface
+class '.ucfirst($acl_role).'
 {
 					
 	const ROLE = \''.strtolower($acl_role).'\';						
@@ -108,7 +104,7 @@ class '.ucfirst($acl_role).' implements RoleInterface
 
 
 	/**
-	 * create a ACL Role class string that implement the Zend_Role_Interface
+	 * create a ACL Role class string that implement the Laminas_Role_Interface
 	 *
 	 * @param $acl_res
 	 * @param string $moduleFolder the module to create the file in
@@ -118,11 +114,9 @@ class '.ucfirst($acl_role).' implements RoleInterface
 	protected static function _writeAclResourcesClassString($acl_res , $moduleFolder=self::DEFAULT_MODULE)
 	{
 		$string = '<?php
-namespace '.ucfirst($moduleFolder).'\Acl\Resource ;	
-
-use Zend\Permissions\Acl\Resource\ResourceInterface ;		
+namespace '.ucfirst($moduleFolder).'\Core\Acl\Resource ;	 
 					
-class '.ucfirst($acl_res).' implements ResourceInterface
+class '.ucfirst($acl_res).'
 {
 					
 	const RESOURCE = \''.$acl_res.'\';						

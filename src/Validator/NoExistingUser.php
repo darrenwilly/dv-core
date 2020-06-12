@@ -2,13 +2,13 @@
 
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use Symfony\Component\Validator\Constraint;
 
 
-class NoExistingUser extends Zend_Validate
+class NoExistingUser extends Base
 {
 	  
-	public function isValid($value, $context = null)
+	public function validate($value, Constraint $constraint)
 	{
 		//validate the value as string
 		//$value = (string) $value;

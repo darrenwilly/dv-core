@@ -3,7 +3,7 @@ namespace DV\Service ;
 
 use DateTime ;
 use DV\Service\Image\Scale;
-use Zend\I18n\Filter\Alnum;
+use Laminas\I18n\Filter\Alnum;
 
 /**
  * Handle File Upload, Renaming, Copy, Filter and other Manipulations
@@ -37,7 +37,7 @@ trait FileManager
 	 * @param array $_options
 	 * @return array|bool
 	 * @throws \Exception
-	 * @internal param array|\Zend\Config $options
+	 * @internal param array|\Laminas\Config $options
 	 * @internal param array $data
 	 */
 	protected function upload(array &$_options)

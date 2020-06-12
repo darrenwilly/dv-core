@@ -6,7 +6,7 @@ use DV\Service\ActionControl;
 use OTPHP\TOTP;
 use DV\Doctrine\Doctrine;
 use DV\Model\Lookup;
-use Zend\Config\Config;
+use Laminas\Config\Config;
 
 
 class OtpService
@@ -73,7 +73,7 @@ class OtpService
         $extras_entity_row = $repository_entity_row->getExtras('config') ;
 
         if(! $extras_entity_row instanceof Config)    {
-            throw new RuntimeException('instance of Zend\Config\Config required for better logic management') ;
+            throw new RuntimeException('instance of Laminas\Config\Config required for better logic management') ;
         }
 
         if(! $extras_entity_row->offsetExists(self::KEY_OTP))    {
@@ -100,7 +100,7 @@ class OtpService
 
         if(! $extras_entity_row->offsetExists(self::KEY_OTP))    {
             ##
-            throw new RuntimeException('instance of Zend\Config\Config required for better logic management') ;
+            throw new RuntimeException('instance of Laminas\Config\Config required for better logic management') ;
         }
         ##
         $otp_entity_schema = $extras_entity_row->get(self::KEY_OTP) ;

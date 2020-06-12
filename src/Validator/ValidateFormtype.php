@@ -2,12 +2,13 @@
 
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator as Laminas_Validate ;
 
 
-class ValidateFormtype extends Zend_Validate
+class ValidateFormtype extends Laminas_Validate
 {
-	public function isValid($value, $context = null)
+	public function validate($value, Constraint $constraint)
 	{
 		
 	}

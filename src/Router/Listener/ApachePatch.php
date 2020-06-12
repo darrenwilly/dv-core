@@ -6,13 +6,13 @@ use DV\Mvc\LogicResult;
 use DV\Mvc\Response\LogicResultResponse;
 use DV\Mvc\Service\ServiceLocatorFactoryTrait;
 use DV\Json\Validate;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateInterface;
-use Zend\EventManager\ListenerAggregateTrait;
-use Zend\Http\Header\ContentType;
-use Zend\Http\Request;
-use Zend\Http\Response;
-use Zend\Mvc\MvcEvent; 
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\ListenerAggregateInterface;
+use Laminas\EventManager\ListenerAggregateTrait;
+use Laminas\Http\Header\ContentType;
+use Laminas\Http\Request;
+use Laminas\Http\Response;
+use Laminas\Mvc\MvcEvent;
 
 /**
  * Check and make sure that all necessary key to make request are made available
@@ -52,7 +52,7 @@ class ApachePatch implements ListenerAggregateInterface
      * Check for platform
      *
      * @param MvcEvent $e
-     * @return \Zend\Stdlib\ResponseInterface
+     * @return \Laminas\Stdlib\ResponseInterface
      */
     public function removePrependRewriteBase(MvcEvent $e)
     {

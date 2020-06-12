@@ -3,7 +3,7 @@ namespace DV\Filter;
 
 use DV\MicroService\TraitContainer;
 use Psr\Container\ContainerInterface;
-use Zend\Filter\AbstractFilter ;
+use Laminas\Filter\AbstractFilter ;
 
 
 abstract class Base extends AbstractFilter
@@ -12,7 +12,7 @@ abstract class Base extends AbstractFilter
 
 	/**
 	 * Instance of ServiceManager
-	 * @var \Zend\ServiceManager\ServiceManager()
+	 * @var \Laminas\ServiceManager\ServiceManager()
 	 */
 	protected $sm ;
 	

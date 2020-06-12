@@ -1,7 +1,7 @@
 <?php
 namespace DV\Cache\Storage\Adapter\Sqlite;
 
-use Zend\Cache\Storage\Adapter\AdapterOptions ;
+use Laminas\Cache\Storage\Adapter\AdapterOptions ;
 /**
  * These are options specific to the SQLite adapter
  */

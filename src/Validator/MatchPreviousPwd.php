@@ -2,11 +2,11 @@
 
 namespace DV\Validator ;
 
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator;
 
-class MatchPreviousPwd extends \Zend\Validator\AbstractValidator
+class MatchPreviousPwd extends ConstraintValidator
 {
-	
-	
     const NOT_MATCH = 'notMatch';
 
     protected $_messageTemplates = array(
@@ -18,22 +18,7 @@ class MatchPreviousPwd extends \Zend\Validator\AbstractValidator
     protected $_userId ;
     
     
-    
-    public function __construct(DV_Model_Abstract $model , $userId)	
-    {
-    	
-    	if($model instanceof DV_Model_Abstract)	{
-    		$this->_model = $model ;
-    	}
-    	
-    	if(null != $userId)	{
-    		$this->_userId = $userId ;    	
-    	}
-    	
-    }    
-    
-    
-    public function isValid($value, $context = null)
+    public function validate($value, Constraint $constraint)
     {
     	//validate the value as string
         //$value = (string) $value;

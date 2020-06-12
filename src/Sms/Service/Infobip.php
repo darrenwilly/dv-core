@@ -5,12 +5,12 @@ namespace DV\Mail\Service;
 use DV\Mail\Message\SparkPost as messageObject;
 use DV\Service\ActionControl;
 use SlmMail\Service\AbstractMailService;
-use Zend\Config\Config;
-use Zend\Http\Response;
-use Zend\Mail\Message;
+use Laminas\Config\Config;
+use Laminas\Http\Response;
+use Laminas\Mail\Message;
 use DV\Mail\RuntimeException ;
 use SparkPost\SparkPost ;
-use Http\Adapter\Zend\Client as zendClient;
+use Http\Adapter\Laminas\Client as LaminasClient;
 
 class SparkPostService extends AbstractMailService
 {
@@ -108,7 +108,7 @@ class SparkPostService extends AbstractMailService
      * @param string $uri
      * @param array $parameters
      * @param bool $perDomain
-     * @return zendClient
+     * @return LaminasClient
      */
     private function prepareHttpClient()
     {

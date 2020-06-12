@@ -1,8 +1,8 @@
 <?php
 namespace DV\Validator\Csrf ;
 
-use Zend\Validator\Csrf as CsrfValidator;
-use Zend\Math\Rand;
+use Laminas\Validator\Csrf as CsrfValidator;
+use Laminas\Math\Rand;
 
 class Validator extends CsrfValidator
 {
@@ -47,11 +47,11 @@ class Validator extends CsrfValidator
 		
 		### check for the validity of the session value first
 		$csrf_container = $this->getSession() ;
-		#$csrf_container = new \Zend\Session\Container($this->getSessionName());;
+		#$csrf_container = new \Laminas\Session\Container($this->getSessionName());;
 		$csrf_container->setExpirationHops(5);
 		#$csrf_container->setExpirationSeconds($this->getTimeout()) ;
 		### check for existing csrf value in the tokenList & hash container && $csrf_container->__isset('hash')
-		if(null != $_SESSION['Zend_Validator_Csrf_salt_csrf']['tokenList'])	{
+		if(null != $_SESSION['Laminas_Validator_Csrf_salt_csrf']['tokenList'])	{
 			### if the container value is still valid, then don't generate a new one
 			$this->hash = $csrf_container->hash ;
 			

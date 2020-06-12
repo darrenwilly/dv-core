@@ -1,12 +1,14 @@
 <?php
-
+declare(strict_types=1);
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use Shared\Core\Query\User;
+use Symfony\Component\Validator\ConstraintValidator as Validate ;
 use DV\Service\ActionControl ;
-use DV\Model\BaseTrait ;
+use DV\MicroService\BaseTrait ;
+use Symfony\Component\Validator\Constraint;
 
-class UniqueOnlineStatus extends Zend_Validate
+class UniqueOnlineStatus extends Validate
 {
     use BaseTrait;
 
@@ -46,53 +48,53 @@ class UniqueOnlineStatus extends Zend_Validate
     	self::USER_NOT_ACTIVATED => 'Your account %value% has not been activated / has been locked. Please contact administrator',
         self::USER_PROFILE_NOT_COMPLETE => 'The account %value% has not been approved by the HR Manager'
    ];
-    
 
-    public function __construct($_options=[])
+    protected $user_entity_row ;
+    /**
+     * allow us to control the behaviour of the validator when not used by Symfony Validator builder
+     * @var int
+     */
+    protected $symfony_validator_behaviour = 1;
+
+    public function __construct(User $model , $options=[])
     {
-    	### check if the model is set
-    	if(! array_key_exists('model', $_options))	{
-    		$_options['model'] = new \DV\Model\User() ;
-    	}
-    	
-    	parent::__construct($_options) ;
-    	
-        $this->setModel($_options['model']) ;
+        $this->setModel($model) ;
     }
-
-   
-    public function isValid($value, $context = null)
+    
+    public function validate($value, Constraint $constraint)
     {
-        ## Fetching User with provided Username
-        $user = $this->getModel()->getUser(['row' => ['username' => $value, 'activated' => ActionControl::YES]]);
-        
+        /**
+         * Use the passed params to fetch only when the USer entity row is not set
+         */
+        if(! $user_entity_row = $this->getUserEntityRow())    {
+            ##
+            $user_entity_row = $this->getModel()->getUser(['row' => ['username' => $value, 'activated' => ActionControl::YES]]);
+        }
+
         ##check for null result
-        if (null == count($user)) 		{
-        	 $this->error(self::USER_NOT_EXISTS);
+        if (null == $user_entity_row) 		{
+            $this->context->buildViolation($this->messageTemplates[self::USER_NOT_EXISTS])->addViolation();
         	 return false ;
         }
 
-        ##check for employee profile
-        if (null == $user->getProfile()->getHrProfile() && ! in_array($user->getRole()->getRole() , ['superadmin' , 'hr'])) 		{
-        	 $this->error(self::USER_PROFILE_NOT_COMPLETE);
-        	 return false ;
-        }
-        
         ###
-        if($user->getAccessLevel() > ActionControl::ONE)	{
-        	$this->error(self::USER_NOT_ACTIVATED) ;
+        if($user_entity_row->getAccessLevel() > ActionControl::ONE)	{
+            if($this->symfony_validator_behaviour)    {
+                $this->context->buildViolation($this->messageTemplates[self::USER_NOT_ACTIVATED])->addViolation();
+            }
+
         	return false ;
         }
        
         ##if user onlineStatus == N means User actually logout successfully.
-        if(ActionControl::NO === $user->getOnlineStatus())	{
+        if(ActionControl::NO === $user_entity_row->getOnlineStatus())	{
         	return true;
         }
         	 
         ###else, user has some problem the last time he was online.
-        elseif(ActionControl::YES === $user->getOnlineStatus())	{
+        elseif(ActionControl::YES === $user_entity_row->getOnlineStatus())	{
 			       ## create lastlogin date object
-				$lastLogin = $user->getLastLogin() ;
+				$lastLogin = $user_entity_row->getLastLogin() ;
 				## checking if d date is today or earlier than today.
 					
 				### create today's date
@@ -114,55 +116,57 @@ class UniqueOnlineStatus extends Zend_Validate
                     }
 			        		
                     ### check if the user has waited for more-than / equal-to 20 minutes
-                    if($this->getUserAccessTimeSettings($user)  <= $minuteResult)	{
+                    if($this->getUserAccessTimeSettings($user_entity_row)  <= $minuteResult)	{
                         return true ;
                     }
                     else{
-                        $this->setMessage(vsprintf('User "%s" has a login status on the system, please retry again at the Administrator Set Time Interval.' ,
-                                        [$user->getUsername()]) , self::USER_EXISTS);
-                        $this->error(self::USER_EXISTS);
-                        return false ;
+                        $message = sprintf('User "%s" has a login status on the system, please retry again at the Administrator Set Time Interval.' , $user_entity_row->getUsername());
+                        if($this->symfony_validator_behaviour)    {
+                            $this->context->buildViolation($message)->addViolation();
+                        }
+
+                        return false;
                     }
 			        	       		
 				}
-        
         }
 
-        $this->error(self::USER_NOT_EXISTS) ;   
-        return false ;     
+        if($this->symfony_validator_behaviour)    {
+            $this->context->buildViolation($this->messageTemplates[self::USER_NOT_EXISTS])->addViolation() ;
+        }
+
+        return false ;
    	 }
+
+   	 public function setUserEntityRow($user_entity_row)
+     {
+         $this->user_entity_row = $user_entity_row ;
+     }
+     public function getUserEntityRow()
+     {
+         return $this->user_entity_row ;
+     }
+     public function setBehaviour($behaviour)
+     {
+         $this->symfony_validator_behaviour = $behaviour ;
+     }
+
    	 
-   	 
-   	 public function getUserAccessTimeSettings($user)
+   	 public function getUserAccessTimeSettings($user_entity_row)
    	 {
-   	 	$user_group_setting = $this->getModel()->getSystem()->getSystemSettings(['row' => [
-   	 								  'groupOptions' => 'time_to_wait_for_relogin_on_fail_signout' ,
-   	 									'activated' => ActionControl::YES
+   	 	$user_entity_row_group_setting = $this->getModel()->getSystem()->getSystemSettings(['row' => [
+                    'groupOptions' => 'time_to_wait_for_relogin_on_fail_signout' ,
+                    'activated' => ActionControl::YES
    	 	]]) ;
    	 	
    	 	## check for null response
-   	 	if(count($user_group_setting) != null)	{
-   	 		$user_to_wait = $user_group_setting->getGroupSettings() ;
-   	 	 
-   	 		return $user_to_wait ;
+   	 	if(($user_entity_row_group_setting) != null)	{
+   	 		$user_entity_row_to_wait = $user_entity_row_group_setting->getGroupSettings() ;
+   	 	    ##
+   	 		return $user_entity_row_to_wait ;
    	 	}
-   	 	else	{
-   	 	 
-	   	 	## Fetching User with provided Username
-	   	 	$user_group_setting = $this->_model->getSystem()->getSystemSettings(['row' => ['groupOptions' => 'time_to_wait_for_relogin_on_fail_signout' ,
-	   	 										'activated' => ActionControl::YES
-	   	 	]]) ;
-	   	 	
-	   	 	if(null == count($user_group_setting))	{
-	   	 		throw new \Exception('could detect an alternate admin system settings') ;
-	   	 	}
-	   	 	
-	   	 	### use  the system default time settings
-	   	 	$user_to_wait = (int) $user_group_setting->getGroupSettings() ;
-	   	 		 
-	   	 	return $user_to_wait ;
-   	 	}
-   	 	 
+
+   	 	throw new \Exception('could detect an alternate admin system settings') ;
    	 }
 
 }

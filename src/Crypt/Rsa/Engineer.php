@@ -1,11 +1,11 @@
 <?php
 namespace DV\Crypt\Rsa ;
 
-use Zend\Crypt\Key\Derivation\Pbkdf2 ;
+use Laminas\Crypt\Key\Derivation\Pbkdf2 ;
 use DV\Crypt\CryptAbstract ;
-use Zend\Crypt\BlockCipher;
-use Zend\Crypt\PublicKey\RsaOptions;
-use Zend\Crypt\PublicKey\Rsa;
+use Laminas\Crypt\BlockCipher;
+use Laminas\Crypt\PublicKey\RsaOptions;
+use Laminas\Crypt\PublicKey\Rsa;
 
 class Engineer
 {
@@ -105,7 +105,7 @@ class Engineer
 	/**
 	 * initiate the block cipher engine
 	 * @param array $options
-	 * @return \Zend\Crypt\BlockCipher
+	 * @return \Laminas\Crypt\BlockCipher
 	 */
 	public function blockCipher(array $options)
 	{
@@ -161,7 +161,7 @@ class Engineer
 	 * 
 	 * @param array $options
 	 * @throws \Exception
-	 * @return \Zend\Crypt\PublicKey\RsaOptions
+	 * @return \Laminas\Crypt\PublicKey\RsaOptions
 	 */
 	public function rsaGenerateCert($options)
 	{	
@@ -207,7 +207,7 @@ class Engineer
 	 * 
 	 * @param array $options
 	 * @throws \Exception
-	 * @return \Zend\Crypt\PublicKey\Rsa
+	 * @return \Laminas\Crypt\PublicKey\Rsa
 	 */
 	public function rsaOperation($options)
 	{

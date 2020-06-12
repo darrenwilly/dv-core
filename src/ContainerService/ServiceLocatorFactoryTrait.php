@@ -1,14 +1,18 @@
 <?php
 
-namespace DV\Mvc\Service ;
+namespace DV\ContainerService ;
 
-use Zend\Mvc\MvcEvent ;
+use DV\ContainerService\NullServiceLocatorException;
+use Laminas\Stdlib\Parameters;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Response;
 
 trait ServiceLocatorFactoryTrait
 {
     /**
      * @throw ServiceLocatorFactory\NullServiceLocatorException
-     * @return \Zend\ServiceManager\ServiceManager
+     * @return ContainerInterface
      */
     public function getServiceManager()
     {
@@ -22,54 +26,35 @@ trait ServiceLocatorFactoryTrait
         
 
     /**
-     * lazy loading of mvcevent
-     * @throws \Exception
-     * @return MvcEvent
-     */
-    public function getMvcEvent()
-    {
-    	return ServiceLocatorFactory::getMvcEvent();
-    }
-    
-    /**
      * lazy load Request
-     * @return \Zend\Stdlib\RequestInterface
+     * @return \Symfony\Component\HttpFoundation\RequestStack
      */
     public function getRequest()
     {
-    	return ServiceLocatorFactory::getRequest() ;
+        return $this->getLocator('request_stack') ;
     }
     
     /**
      * lazy load Response
-     * @return \Zend\Stdlib\ResponseInterface 
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function getResponse()
     {
-    	return ServiceLocatorFactory::getResponse() ;
+    	return new Response() ;
     }
     
     /**
      * lazy load Router
-     * @return \Zend\Router\RouteStackInterface
+     * @return  \Symfony\Component\Routing\RouterInterface
      */
     public function getRouter()
     {
-    	return ServiceLocatorFactory::getRouter() ;
-    }
-    
-    /**
-     * Lazy load RouteMatch
-     * @return \Zend\Router\RouteMatch
-     */
-    public function getRouteMatch()
-    {
-    	return ServiceLocatorFactory::getRouteMatch();
+    	return $this->getLocator('router.default') ;
     }
 
     /**
      * lazy load Request Parameters
-     * @return \Zend\Stdlib\Parameters
+     * @return array | Parameters
      */
     protected function getParameters(array $defaults = [])
     {
@@ -78,7 +63,7 @@ trait ServiceLocatorFactoryTrait
 
     /**
      * lazy load Request Parameters
-     * @return \Zend\Stdlib\Parameters
+     * @return string
      */
     protected function assembleUrl($route , $options=[]  , $query_params=[])
     {
@@ -94,14 +79,21 @@ trait ServiceLocatorFactoryTrait
     {
         $request = $this->getRequest() ;
 
+        if($request instanceof RequestStack)    {
+            ##
+            $request = $request->getCurrentRequest() ;
+        }
+
         if(! $request->isXmlHttpRequest())    {
             return false ;
         }
-
+        ## fetch header object
         $response = $this->getResponse() ;
-        $headers = $response->getHeaders();
-        $headers->addHeaderLine('content-type', 'application/json');
-
+        ##
+        $headers = $response->headers;
+        ##
+        $headers->set('content-type', 'application/json');
+        ##
         return true ;
     }
 }

@@ -2,13 +2,14 @@
 
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use Symfony\Component\Validator\ConstraintValidator  as Laminas_Validate ;
+use Symfony\Component\Validator\Constraint;
 
 
-class CorrectSecurityAnswer extends Zend_Validate
+class CorrectSecurityAnswer extends Laminas_Validate
 { 
 	
-	public function isValid($value, $context = null)
+	public function validate($value, Constraint $constraint)
 	{
 		
 	}

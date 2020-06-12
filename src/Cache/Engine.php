@@ -1,7 +1,7 @@
 <?php
 namespace DV\Cache ;
 
-use Zend\Cache\StorageFactory;
+use Laminas\Cache\StorageFactory;
 
 
 class Engine extends CacheAbstract
@@ -18,7 +18,7 @@ class Engine extends CacheAbstract
 	/**
 	 * 
 	 * @param array $_options
-	 * @return \Zend\Cache\StorageFactory
+	 * @return \Laminas\Cache\StorageFactory
 	 */
 	public static function getInstance($_options=[])
 	{
@@ -33,7 +33,7 @@ class Engine extends CacheAbstract
 	/**
 	 * 
 	 * @param string $adapterName
-	 * @return \Zend\Cache\StorageFactory
+	 * @return \Laminas\Cache\StorageFactory
 	 */
 	public static function adapterFactory($adapterName)
 	{

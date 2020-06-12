@@ -2,10 +2,10 @@
 
 namespace DV\InputFilter ;
 
-use Zend\InputFilter\InputFilter as FormInputFilter;
-use Zend\InputFilter\Input as ElementInput;
-use Zend\Validator as FormValidator;
-use Zend\Filter as FormFilter;
+use Laminas\InputFilter\InputFilter as FormInputFilter;
+use Laminas\InputFilter\Input as ElementInput;
+use Laminas\Validator as FormValidator;
+use Laminas\Filter as FormFilter;
 
 
 

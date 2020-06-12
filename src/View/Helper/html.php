@@ -2,15 +2,20 @@
 namespace DV\View\Helper ;
 
 use DV\View\Base as dv_base ;
-use Zend\I18n\Filter\Alnum ;
-use DV\Mvc\Service\ServiceLocatorFactory ;
+use Laminas\I18n\Filter\Alnum ;
+use Twig\Environment;
+use Veiw\Infrastructure\Twig\TrojanViewHelperAbstract;
 
 
-
-class Html extends dv_base
+class html extends TrojanViewHelperAbstract
 {	
-	
-	public function __invoke()
+
+    public function __construct(Environment $view)
+    {
+        $this->setView($view) ;
+    }
+
+    public function __invoke()
 	{
 		return $this ;
 	}
@@ -102,7 +107,7 @@ class Html extends dv_base
 	/**
 	 * Fetch the cache engine
 	 * 
-	 * @return Zend\Cache\Storage\StorageInterface
+	 * @return Laminas\Cache\Storage\StorageInterface
 	 */
 	protected function _getCache()
 	{

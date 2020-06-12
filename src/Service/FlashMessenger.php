@@ -1,93 +1,116 @@
 <?php
 namespace DV\Service ;
 
-use DV\Json\Validate as jsonValidator;
-use Zend\Form\Form;
-use Zend\InputFilter\InputFilterInterface;
-use Zend\Mvc\Plugin\FlashMessenger\FlashMessenger as zend_flash_messenger ;
-use DV\Mvc\Service\ServiceLocatorFactory ;
-use Zend\Di\ServiceLocator;
-use DV\Model\BaseTrait ;
+use DV\ContainerService\ServiceLocatorFactory;
+use DV\MicroService\TraitContainer;
+use Psr\Container\ContainerInterface;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\Form\Form;
+use Laminas\InputFilter\InputFilterInterface;
+use DV\MicroService\BaseTrait ;
 use Exception ;
+use Symfony\Component\HttpFoundation\RequestStack;
+use Symfony\Component\HttpFoundation\Session\Flash\FlashBag;
 
 trait FlashMessenger
 {
     use BaseTrait;
-    use jsonValidator ;
+    use TraitContainer ;
 
 	public static $FLASH_MESSENGER_NAMESPACE = 'dv_veiw_flashMessages' ;
 
     public static $URI_MESSAGE_KEY = 'sysmsg' ;
 
-    protected $flash_messenger;
+    /**
+     * @var FlashBag
+     */
+    protected $flashMessenger;
+    protected $flashStorage;
+    protected $request ;
 
-
-
-    public function flashMessengerEngine()
+    public function __construct(RequestStack $request , ContainerInterface $container)
     {
-        if(null == $this->flash_messenger)    {
-            $this->flash_messenger = new zend_flash_messenger() ;
-            $this->flash_messenger->setNamespace(self::$FLASH_MESSENGER_NAMESPACE) ;
+        if($request instanceof RequestStack)    {
+            $request = $request->getCurrentRequest() ;
         }
 
+        $this->request = $request ;
         ##
-        return $this->flash_messenger  ;
+        $this->flashStorage = $request->getSession()->getFlashBag() ;
+        $this->flashMessenger = $this ;
+        $this->setContainer($container) ;
+    }
+
+    /**
+     * @return $this
+     */
+    public function flashMessengerEngine()
+    {   ##
+        return $this  ;
+    }
+
+    /**
+     * @return FlashBag
+     */
+    public function getFlashStorage()
+    {
+        return $this->flashStorage ;
     }
 
     public function addFlashMessage(array $message_n_key)
     {
-        $flash_message = $this->flashMessengerEngine()->addMessage($message_n_key)  ;
-        return $flash_message ;
+        foreach ($message_n_key as $key => $value)  {
+            ##
+            $this->getFlashStorage()->add($key , $value)  ;
+        }
+        unset($message_n_key);
     }
 
-    public function getFlashMessage($key='error')
+    public function getMessages($key='error')
     {
         $message_as_string = null ;
         ### fetch the flash message
-        $flashMessenger = $this->flashMessengerEngine();
+        $flashMessenger = $this->getFlashStorage();
         ### get messages from previous requests
-        $all_flash_messages = $flashMessenger->getMessagesFromNamespace(self::$FLASH_MESSENGER_NAMESPACE);
-
-        $all_flash_messages = array_merge($all_flash_messages , $flashMessenger->getCurrentMessages());
+        $all_flash_messages = $flashMessenger->all();
         ###
-        if($flashMessenger->hasMessages()) {
+        if(0 < count($all_flash_messages)) {
             $output = '';
 
             $message_repeater_remover = [] ;
             ### process messages
             foreach ($all_flash_messages as $message) {
+                ### fetch each message(key & value) from the $message
+                $key = key($message) ;
+                $message_body = $message[$key] ;
 
-                if (is_array($message)) {
-                    ### fetch each message(key & value) from the $message
-                    list($key , $message_body) = each($message);
-
-                    ### force the exception key to be translated to error incase, we are using exception message for flash messenger
-                    /*if (in_array($key, ['exception', 'error' , ''])) {
-                        $key = 'error';
-                    } else*/
-                    if (in_array($key, ['success', 'info', 'notice'])) {
-                        $key = 'success';
-                    } else {
-                        $key = 'error';
-                    }
-
-                    ### set the right response header is error message is sent
-                    if($this->giveMeJson() && in_array($key , ['exception' , 'error']))    {
-                        ## add the json error response header
-                        $this->jsonErrorHeaders() ;
-                    }
-
-                    if (! in_array($message_body , $message_repeater_remover)) {
-                        ### unset repeatition message
-                        $message_as_string[$key][] = $message_body ;
-                        ## add the message inside the repeater_remover variable so that it does not appear twice
-                        $message_repeater_remover[] = $message_body;
-                    }
+                if (in_array($key, ['success', 'info', 'notice'])) {
+                    $key = 'success';
+                } else {
+                    $key = 'error';
                 }
+
+                ### unset repeatition message
+                $message_as_string[$key][] = $message_body ;
             }
         }
         ##
         return $message_as_string ;
+    }
+
+    /**
+     * Static Bind call to the message
+     * @param $messageCode
+     * @param null $sprintf
+     * @throws Exception
+     */
+    static public function message($messageCode , $sprintf=null)
+    {
+        ##
+        $container = ServiceLocatorFactory::getInstance() ;
+        ##
+        $self = new self($container->get('request_stack') , $container) ;
+        return $self->_message($messageCode , $sprintf) ;
     }
 
 	/**
@@ -96,58 +119,64 @@ trait FlashMessenger
 	 * @param int|numeric $messageCode|key
 	 * @param string|array $sprintf|message
 	 *
-	 * @return zend_flash_messenger
+	 * @return
 	 */
-	static public function message($messageCode , $sprintf=null)
+	public function _message($messageCode , $sprintf=null)
 	{
-		$self = new self() ;
-		$self->setModel(new \DV\Model\System());
+		$this->setModel($this->getContainer()->get(\Veiw\Core\Query\System::class));
 
 		if(is_numeric($messageCode))    {
 			### fetch the message from the db
-			$model = $self->getModel() ;
+			$model = $this->getModel() ;
 			
 			### cache the url data info on production environment
 			if(PRODUCTION == APPLICATION_ENV)	{
                 $result_bool = null ;
+                ##
+                $cacheSystem = $this->_getCache() ;
 				### try to fetch already save message from catch
-				$message_row = $self->_getCache()->getItem($messageCode , $result_bool) ;
-				
-				### check for the available cache
-				if(! ($result_bool)) 	{
-					### fetch the message
-					$message_row = $model->get_system_message(['row' => ['code' => $messageCode , 'activated' => ActionControl::YES]]) ;
-					### save the message fetch from db.
-                    $self->_getCache()->setItem($messageCode , $message_row);
-				}
-			} else{
+				$message_entity_row_cache_hit = $cacheSystem->getItem($messageCode) ;
+				##
+                if(! $message_entity_row_cache_hit->isHit())    {
+                    ## fetch the message
+                    $message_entity_row = $model->get_system_message(['row' => ['code' => $messageCode , 'activated' => ActionControl::YES]]) ;
+                    ##
+                    $message_entity_row_cache_hit->set($message_entity_row) ;
+                    ##
+                    $cacheSystem->save($message_entity_row_cache_hit) ;
+                }
+                else{
+                    $message_entity_row = $message_entity_row_cache_hit->get() ;
+                }
+			}
+			else{
 				### fetch the message
-				$message_row = $model->get_system_message(['row' => ['code' => $messageCode , 'activated' => ActionControl::YES]]) ;
+				$message_entity_row = $model->get_system_message(['row' => ['code' => $messageCode , 'activated' => ActionControl::YES]]) ;
 			}						
-			
+
 			### if no message was fetch, return custom error
-			if(null == count($message_row))	{
+			if(null == $message_entity_row)	{
 				$key = 'error' ;
 				$message = 'invalid message criteria supplied, unable to locate the message from database' ;
 			}
 			else{
 				### fetch the parameters from db
-				$key = $message_row->getType() ;
+				$key = $message_entity_row->getType() ;
 				### allow the message to use sprintf incase the message has placeholder
 				if(null != $sprintf)	{
 					### cast sprintf as array
 					$sprintf = (array) $sprintf ;
 					### format the output
-					$message = vsprintf($message_row->getMessage() , $sprintf) ;
+					$message = vsprintf($message_entity_row->getMessage() , $sprintf) ;
 				}
 				else{### message without sprintf format
-					$message = $message_row->getMessage() ;
+					$message = $message_entity_row->getMessage() ;
 				}
 			}
 			
 			$message_n_key = [$key => $message] ;
-			
-			return $self->addFlashMessage($message_n_key) ;
+
+			return $this->addFlashMessage($message_n_key) ;
 		}
 		else{
 			$key = (string) $messageCode ;
@@ -155,17 +184,17 @@ trait FlashMessenger
 			
 			$message_n_key = [$key => $message] ;
 			### save the message in the flash messenger
-			return $self->addFlashMessage($message_n_key);
+			return $this->addFlashMessage($message_n_key);
 		}
 	}
 
     public function getFormErrorMessages($form)
     {
         if(! $form instanceof Form)    {
-            throw new Exception('Instance of Zend\Form Expected, instance of '.gettype($form).' passed') ;
+            throw new \RuntimeException('Instance of Symfony\Form Expected, instance of '.gettype($form).' passed') ;
         }
         ###
-        $messages  = $form->getMessages() ;
+        $messages  = $form->getErrors() ;
         ###
         foreach ($messages as $element_name => $validator_n_msg) {
             ###
@@ -179,7 +208,7 @@ trait FlashMessenger
     public function getIFilterErrorMessages($iFilter)
     {
         if(! $iFilter instanceof InputFilterInterface)    {
-            throw new Exception('Instance of Zend\Form Expected, instance of '.gettype($iFilter).' passed') ;
+            throw new Exception('Instance of Laminas\Form Expected, instance of '.gettype($iFilter).' passed') ;
         }
         ###
         $messages  = $iFilter->getMessages() ;
@@ -194,13 +223,13 @@ trait FlashMessenger
     }
 	
 	
-	static public function flash_message_from_uri($_params)
+	static public function flashMessageFromUri($_params)
 	{
-		$_url_params = $_params[self::URI_MESSAGE_KEY] ;
+		$_url_params = $_params[self::$URI_MESSAGE_KEY] ;
 			
 		### check for system message in the url string
 		if(null != $_url_params)    {
-			### make sure the value to be passed to flash messager is a string
+			### make sure the value to be passed to flash message is a string
 			if(is_numeric($_url_params))    {
 				self::message($_url_params) ;
 			}
@@ -210,12 +239,26 @@ trait FlashMessenger
 	/**
 	 * Fetch the cache engine
 	 *
-	 * @return \Zend\Cache\Storage\StorageInterface
+	 * @return FilesystemAdapter|\Symfony\Component\Cache\Adapter\RedisAdapter
 	 */
 	protected function _getCache()
 	{
+	    if(! $this->getContainer()->has(\DV\Service\FlashMessenger\CacheInterface::class))    {
+	        throw new \RuntimeException('DV\Service\FlashMessenger\Cache is not defined in container service') ;
+        }
 		### create the option configuration to pass unto cache
-		$_cache = ServiceLocatorFactory::getLocator('DV\Service\FlashMessenger\Cache') ;
-		return $_cache ;
+		$cache = $this->getContainer()->get(\DV\Service\FlashMessenger\CacheInterface::class) ;
+		##
+	    return $cache->getCacheSystem() ;
 	}
+
+
+	public function hasCurrentMessages()
+    {
+        $flash_engine = $this->getFlashStorage() ;
+        ##
+        return (0 < count($flash_engine->all())) ;
+    }
+
+
 }

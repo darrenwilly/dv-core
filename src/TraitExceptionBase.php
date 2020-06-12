@@ -2,7 +2,7 @@
 namespace DV;
 
 use DV\Expressive\Service\ContainerFactory;
-use Zend\Stdlib\Parameters;
+use Laminas\Stdlib\Parameters;
 
 trait TraitExceptionBase
 {

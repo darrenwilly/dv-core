@@ -2,12 +2,17 @@
 
 namespace DV\Validator ;
 
-use Zend\Validator\AbstractValidator as Zend_Validate ;
+use DV\MicroService\TraitModel;
+use DV\Service\FlashMessenger;
+use Shared\Core\Query\User;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\ConstraintValidator as Laminas_Validate ;
 
 
-Class VerifyAccountStatus extends Zend_Validate
+class VerifyAccountStatus extends Laminas_Validate
 { 
-	
+	use TraitModel ;
+
 	const ACCOUNT_DISABLED = 'accountdisabled' ;
 	const ACCOUNT_NON_EXIST = 'accountnotexist' ;
 	const ACCOUNT_NOT_ACTIVATED = 'accountnotactivated' ;
@@ -15,7 +20,7 @@ Class VerifyAccountStatus extends Zend_Validate
 	const UNKWOWN_RESULT = 'unkwownresult' ;
 
     
-    protected $_messageTemplates = array(
+    protected $messageTemplates = array(
         self::ACCOUNT_DISABLED => 'Account "%value%" has been disabled,
         						kindly contact the Darrism Solutions Customer Support' ,
         self::ACCOUNT_NON_EXIST => 'Account "%value%" does not exist or deleted' ,
@@ -24,59 +29,70 @@ Class VerifyAccountStatus extends Zend_Validate
         self::UNKWOWN_RESULT => 'Your account has failed due to unkwown problem' 
     );
     
-    
-	
-	public function __construct($model)
+    protected $user_entity_row;
+    /**
+     * allow us to control the behaviour of the validator when not used by Symfony Validator builder
+     * @var int
+     */
+    protected $symfony_validator_behaviour = 1;
+
+	public function __construct(User $model)
 	{
-		 $this->_model = $model;
+		 $this->setModel($model) ;
 	}
-	
-	
-	
- 	public function isValid($value, $context = null)
+
+ 	public function validate($value, Constraint $constraint)
     {
-    	### filter to string
-    	$value = (string) $value ;
-    	
-        $this->_setValue($value);
-        
-        ### fetch for account supplied by grantee
-        $currentUser = $this->_model->getUserbyUsername($value , null , array('Y' , 'N')) ;
+        ##
+        if(! $user_entity_row = $this->getUserEntityRow())    {
+            $user_entity_row = $this->getModel()->getUser(['row' => ['username' => $value]]) ;
+        }
         
         ### check for null
-        if (null == count($currentUser)) {
-        	Veiw_Service_FlashMessenger::flashmessenger('0085') ;
-        	$this->_error(self::ACCOUNT_NON_EXIST);
+        if (null == $user_entity_row) {
+            if($this->symfony_validator_behaviour)    {
+                $this->context->buildViolation($this->messageTemplates[self::ACCOUNT_NON_EXIST])->addViolation() ;
+            }
+
             return false ;
         }   
         
         ### cast the accessLevel value as integer
-        $accessLevel = (int) $currentUser->AccessLevel ;
+        $accessLevel = (int) $user_entity_row->getAccessLevel() ;
         
-        SWITCH(strtolower($currentUser->UserType))	{
+        SWITCH(strtolower($user_entity_row->getUserType()))	{
 
         	### allow this check only on grantee account	
         	case 'admin' :
-        		
         			SWITCH(true)	{        				
         				case $accessLevel == 1 :
         						return true ;
         					BREAK ;
         					
-        				case $accessLevel == 2 : 
-        						Veiw_Service_FlashMessenger::flashmessenger('0082') ;
-        						$this->_error(self::ACCOUNT_NO_PORTAL_ACCESS) ;
+        				case $accessLevel == 2 :
+                            if($this->symfony_validator_behaviour) {
+                                $this->context->buildViolation($this->messageTemplates[self::ACCOUNT_NO_PORTAL_ACCESS])
+                                    ->setParameters(['%value%' => $user_entity_row->getUsername()])
+                                    ->addViolation();
+                            }
         						return false ;
         					BREAK ;
         					
-        				case $accessLevel == 3 : ### suspended
-        						Veiw_Service_FlashMessenger::flashmessenger('0083') ;
-        						$this->_error(self::ACCOUNT_DISABLED) ;
+        				case $accessLevel == 3 : # suspended
+                            if($this->symfony_validator_behaviour) {
+                                $this->context->buildViolation($this->messageTemplates[self::ACCOUNT_DISABLED])
+                                    ->setParameters(['%value%' => $user_entity_row->getUsername()])
+                                    ->addViolation();
+                            }
         						return false ;
         					BREAK ;
         					
         				default :
-        					$this->_error(self::UNKWOWN_RESULT) ;
+                            if($this->symfony_validator_behaviour) {
+                                $this->context->buildViolation($this->messageTemplates[self::UNKWOWN_RESULT])
+                                    ->setParameters(['%value%' => $user_entity_row->getUsername()])
+                                    ->addViolation();
+                            }
         					return false ;
         					BREAK ;
         			}			        		        
@@ -84,11 +100,23 @@ Class VerifyAccountStatus extends Zend_Validate
         		break ;
         		
         	default :
-        			throw new DV_Model_Exception(DV_Service_SystemMessage::message('0084'), 500) ;
+        			throw new \RuntimeException($this->messageTemplates[self::UNKWOWN_RESULT]) ;
         		break;
         }
-        
-        
-        return true ;
+
     }
+
+    public function setUserEntityRow($user_entity_row)
+    {
+        $this->user_entity_row = $user_entity_row ;
+    }
+    public function getUserEntityRow()
+    {
+        return $this->user_entity_row ;
+    }
+    public function setBehaviour($behaviour)
+    {
+        $this->symfony_validator_behaviour = $behaviour ;
+    }
+
 }

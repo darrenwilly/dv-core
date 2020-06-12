@@ -2,13 +2,13 @@
 namespace DV\View\Strategy;
 
 use DV\Http\ResponseHeaders;
-use Zend\EventManager\EventManagerInterface;
-use Zend\EventManager\ListenerAggregateTrait;
-use Zend\Http\Response;
-use Zend\View\Renderer\JsonRenderer;
-use Zend\View\Strategy\JsonStrategy as zfStrategy;
-use Zend\View\ViewEvent;
-use Zend\View\Model\JsonModel ;
+use Laminas\EventManager\EventManagerInterface;
+use Laminas\EventManager\ListenerAggregateTrait;
+use Laminas\Http\Response;
+use Laminas\View\Renderer\JsonRenderer;
+use Laminas\View\Strategy\JsonStrategy as zfStrategy;
+use Laminas\View\ViewEvent;
+use Laminas\View\Model\JsonModel ;
 
 class JsonStrategy extends zfStrategy
 {
@@ -35,8 +35,8 @@ class JsonStrategy extends zfStrategy
     }
 
     /**
-     * @param \Zend\Mvc\MvcEvent $e The MvcEvent instance
-     * @return \Zend\View\Renderer\RendererInterface
+     * @param \Laminas\Mvc\MvcEvent $e The MvcEvent instance
+     * @return \Laminas\View\Renderer\RendererInterface
      */
     public function selectRenderer(ViewEvent $e)
     {
@@ -52,7 +52,7 @@ class JsonStrategy extends zfStrategy
     }
 
     /**
-    * @param \Zend\Mvc\MvcEvent $e The MvcEvent instance
+    * @param \Laminas\Mvc\MvcEvent $e The MvcEvent instance
     * @return void
     */
     public function injectResponse(ViewEvent $e)

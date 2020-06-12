@@ -1,10 +1,10 @@
 <?php
 namespace DV\Cache ;
 
-use Zend\Cache\StorageFactory;
-use Zend\Cache\Storage\Adapter ;
+use Laminas\Cache\StorageFactory;
+use Laminas\Cache\Storage\Adapter ;
 /**
- * Zend_Cache Engine on Darrism Solution specification
+ * Laminas_Cache Engine on Darrism Solution specification
  * 
  * @author Darrism Solution Ltd
  * @copyright 2012|2015
@@ -14,9 +14,9 @@ use Zend\Cache\Storage\Adapter ;
 abstract class CacheAbstract
 {
 	/**
-	 * Zend\Cache\StorageFactory Engine
+	 * Laminas\Cache\StorageFactory Engine
 	 * 
-	 * @var \Zend\Cache\StorageFactory
+	 * @var \Laminas\Cache\StorageFactory
 	 */
 	protected static $_cache = null ;
 

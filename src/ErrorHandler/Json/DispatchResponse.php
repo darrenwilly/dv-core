@@ -2,9 +2,9 @@
 namespace DV\ErrorHandler\Json;
 
 use DV\Service\UniqueGen;
-use Zend\Mvc\Application;
-use Zend\Mvc\MvcEvent;
-use Zend\View\Model\JsonModel;
+use Laminas\Mvc\Application;
+use Laminas\Mvc\MvcEvent;
+use Laminas\View\Model\JsonModel;
 use DV\Http\ResponseHeaders;
 
 class DispatchResponse
