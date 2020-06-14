@@ -20,7 +20,6 @@
     "require": {
         "php": "^7.2",
         "filp/whoops": "^2.3",
-        "roave/security-advisories": "dev-master",
         "ramsey/uuid": "^3.8",
         "laminas/laminas-component-installer": "^2.1.1",
         "laminas/laminas-config": "^3.2",
